@@ -12,17 +12,19 @@ import java.util.HashSet;
 public class Main {
 
   public static void main(String[] args) {
-    Set<User> userSet = new HashSet<User>();
+    HashMap<String, User> userSet = new HashMap<String, User>();
     Handler handler = new Handler();
 
     Spark.get("/ping", (req, res) -> "OK");
     Spark.post("/signUp", (req, res) -> {
       User u = handler.createUser(req);
-      userSet.add(u);
-      userSet.forEach(i -> System.out.println(i.getName()));
+      userSet.put(u.getEmail(), u);
+      System.out.println(userSet);
+      // Check for errors, check for duplicate users, hash password
+      // Move this into handler
       return res;
     });
-    Spark.post("/logIn", (req, res) -> "Input login info");
+    Spark.post("/logIn", (req, res) -> handler.logIn(req, userSet));
     Spark.post("/createEvent", (req, res) -> "Input event info");
     Spark.post("/joinEvent", (req, res) -> "User added to event");
     Spark.get("/myEvents", (req, res) -> "List of my events");

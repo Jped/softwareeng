@@ -5,6 +5,7 @@ import edu.cooper.ee.ece366.events.model.Member;
 import edu.cooper.ee.ece366.events.model.User;
 import edu.cooper.ee.ece366.events.model.Organization;
 
+import java.util.HashMap;
 import java.util.List;
 import spark.Request;
 
@@ -24,6 +25,26 @@ public class Handler {
         }
         return user;
     }
+
+    public Boolean logIn(Request request, HashMap<String, User> userSet){
+        if (userSet.containsKey(request.queryParams("userEmail"))){
+            if (request.queryParams(("userPassword")).equals((userSet.get(request.queryParams("userEmail"))).getPassword())) {
+                System.out.println("log in successful");
+                return true;
+            }
+            else{
+                System.out.println("password incorrect");
+                return false;
+            }
+
+        }
+        else{
+            System.out.println("User not found");
+            return false;
+        }
+
+    }
+
     private Boolean getUserType(Request request){
         return Boolean.valueOf(request.queryParams("userType"));
     }
