@@ -1,18 +1,31 @@
 package edu.cooper.ee.ece366.events.model;
 
 public class Event {
-   private final Long id;
-   private final Long orgID;
-   private final String name;
-   private final String date;
-   private final String eventMessage; 
+    private final String name;
+    private final String orgName;
+    private final String date;
+    private final String eventMessage;
  
-   public Event(Long id, Long orgID, String name, String date, String eventMessage) {
-	this.id = id;
-	this.orgID = orgID;
+   public Event(String name, String orgName, String date, String eventMessage) {
 	this.name = name;
+	this.orgName = orgName;
 	this.date = date;
 	this.eventMessage = eventMessage;
+   }
+
+   public String getName(){
+       return name;
+   }
+
+   public String getOrgName(){
+       return orgName;
+   }
+   public String getDate(){
+       return date;
+   }
+
+   public String getEventMessage(){
+       return eventMessage;
    }
 }
 

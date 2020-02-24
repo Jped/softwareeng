@@ -13,6 +13,9 @@ public class Main {
 
   public static void main(String[] args) {
     HashMap<String, User> userSet = new HashMap<String, User>();
+    HashMap<String, Event> eventSet = new HashMap<String, Event>();
+    HashMap<Event, User> eventUserMap = new HashMap<Event, User>();
+
     Handler handler = new Handler();
 
     Spark.get("/ping", (req, res) -> "OK");
@@ -25,8 +28,8 @@ public class Main {
       return res;
     });
     Spark.post("/logIn", (req, res) -> handler.logIn(req, userSet));
-    Spark.post("/createEvent", (req, res) -> "Input event info");
-    Spark.post("/joinEvent", (req, res) -> "User added to event");
+    Spark.post("/createEvent", (req, res) -> handler.createEvent(req, userSet, eventSet));
+    Spark.post("/joinEvent", (req, res) -> handler.joinEvent(req, eventSet, userSet, eventUserMap));
     Spark.get("/myEvents", (req, res) -> "List of my events");
     Spark.get("/upcomingEvents", (req, res) -> "List of upcoming events");
 

@@ -45,6 +45,30 @@ public class Handler {
 
     }
 
+    public Event createEvent(Request request, HashMap<String, User> userSet, HashMap<String, Event> eventSet){
+        Event event;
+        if (userSet.containsKey(request.queryParams("orgEmail"))) {
+            event = new Event(request.queryParams("eventName"), request.queryParams("orgName"), request.queryParams("eventDate"), request.queryParams("eventMessage"));
+            eventSet.put(request.queryParams("eventName"), event);
+        }
+        else {
+            System.out.println("Organization not found");
+            event = null;
+        }
+        return event;
+    }
+
+    public Boolean joinEvent(Request request, HashMap<String, Event> eventSet, HashMap<String, User> userSet, HashMap<Event, User> eventUserHashMap){
+        if(eventSet.containsKey(request.queryParams("eventName"))) {
+            eventUserHashMap.put(eventSet.get(request.queryParams("eventName")), userSet.get(request.queryParams("userEmail")));
+            return true;
+        }
+        else {
+            System.out.println("Event not found");
+            return false;
+        }
+    }
+
     private Boolean getUserType(Request request){
         return Boolean.valueOf(request.queryParams("userType"));
     }
