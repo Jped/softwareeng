@@ -17,16 +17,15 @@ public class Handler {
         User user;
         Boolean isOrg = getUserType(request);
         if (isOrg) {
-            user = new Organization(request.queryParams("userName"), request.queryParams("userPhone"), request.queryParams("userEmail"));
+            user = new Organization(request.queryParams("userName"), request.queryParams("userPassword"),request.queryParams("userPhone"), request.queryParams("userEmail"));
         }
         else {
-            user = new Member(request.queryParams("userName"), request.queryParams("userPhone"), request.queryParams("userEmail"), request.queryParams("userBirthday"), request.queryParams("userGender"));
+            user = new Member(request.queryParams("userName"), request.queryParams("userPassword"), request.queryParams("userPhone"), request.queryParams("userEmail"), request.queryParams("userBirthday"), request.queryParams("userGender"));
         }
-        System.out.print("user name: " + user.getName());
         return user;
     }
     private Boolean getUserType(Request request){
-        return Boolean.valueOf(request.params(":userType"));
+        return Boolean.valueOf(request.queryParams("userType"));
     }
 }
 
