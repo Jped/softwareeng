@@ -33,8 +33,8 @@ public class Main {
     Spark.post("/logIn", (req, res) -> handler.logIn(req, userSet));
     Spark.post("/createEvent", (req, res) -> handler.createEvent(req, userSet, eventSet));
     Spark.post("/joinEvent", (req, res) -> handler.joinEvent(req, eventSet, userSet, eventUserMap));
-    Spark.get("/myEvents", (req, res) -> "List of my events");
-    Spark.get("/upcomingEvents", (req, res) -> "List of upcoming events");
+    Spark.get("/myEvents", (req, res) -> handler.myEvents(req, userSet, eventUserMap));
+    Spark.get("/upcomingEvents", (req, res) -> handler.upcomingEvents(req, eventSet));
 
   }
 }

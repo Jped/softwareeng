@@ -5,6 +5,7 @@ import edu.cooper.ee.ece366.events.model.Member;
 import edu.cooper.ee.ece366.events.model.User;
 import edu.cooper.ee.ece366.events.model.Organization;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import spark.Request;
@@ -69,6 +70,25 @@ public class Handler {
         }
     }
 
+    public ArrayList<Event> myEvents(Request request, HashMap<String, User> userSet, HashMap<Event, User> eventUserHashMap){
+        ArrayList<Event> myEvents = new ArrayList<Event>();
+        eventUserHashMap.forEach((event, user)-> {
+            if (((user.getEmail())).equals(request.queryParams("userEmail")){
+                myEvents.add(event);
+            }
+        });
+
+        return myEvents;
+    }
+
+    public ArrayList<Event> upcomingEvents(Request request, HashMap<String, Event> eventSet){
+        ArrayList<Event> upcomingEvents = new ArrayList<Event>();
+        eventSet.forEach((name, event)->{
+            //Check if date has passed
+            upcomingEvents.add(event);
+        });
+        return upcomingEvents;
+    }
     private Boolean getUserType(Request request){
         return Boolean.valueOf(request.queryParams("userType"));
     }
