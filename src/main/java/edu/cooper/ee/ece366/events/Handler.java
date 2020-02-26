@@ -73,9 +73,14 @@ public class Handler {
     public ArrayList<Event> myEvents(Request request, HashMap<Event, User> eventUserHashMap){
         ArrayList<Event> myEvents = new ArrayList<Event>();
         eventUserHashMap.forEach((event, user)-> {
+            System.out.println(event.getName() + " " + user.getEmail() + " " + request.params(":userEmail"));
+            System.out.println(request.queryParams("userEmail"));
+            System.out.println(request.params());
+            System.out.println(request.attributes());
+            System.out.println(request.body());
             if (((user.getEmail())).equals(request.queryParams("userEmail"))){
                 myEvents.add(event);
-                System.out.println(event);
+                System.out.println("if statement");
             }
         });
 
