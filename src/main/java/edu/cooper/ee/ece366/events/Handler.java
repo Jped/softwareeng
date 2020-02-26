@@ -70,11 +70,12 @@ public class Handler {
         }
     }
 
-    public ArrayList<Event> myEvents(Request request, HashMap<String, User> userSet, HashMap<Event, User> eventUserHashMap){
+    public ArrayList<Event> myEvents(Request request, HashMap<Event, User> eventUserHashMap){
         ArrayList<Event> myEvents = new ArrayList<Event>();
         eventUserHashMap.forEach((event, user)-> {
-            if (((user.getEmail())).equals(request.queryParams("userEmail")){
+            if (((user.getEmail())).equals(request.queryParams("userEmail"))){
                 myEvents.add(event);
+                System.out.println(event);
             }
         });
 
