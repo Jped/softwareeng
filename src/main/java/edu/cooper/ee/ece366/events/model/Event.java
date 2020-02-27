@@ -1,10 +1,12 @@
 package edu.cooper.ee.ece366.events.model;
 
+import com.google.gson.annotations.Expose;
+
 public class Event {
-    private final String name;
-    private final String orgName;
-    private final String date;
-    private final String eventMessage;
+    @Expose private final String name;
+    @Expose private final String orgName;
+    @Expose private final String date;
+    @Expose private final String eventMessage;
  
    public Event(String name, String orgName, String date, String eventMessage) {
 	this.name = name;

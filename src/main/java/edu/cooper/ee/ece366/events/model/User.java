@@ -1,10 +1,14 @@
 package edu.cooper.ee.ece366.events.model;
 
+import com.google.gson.annotations.Expose;
+
 public abstract class User {
-  private final String name;
+  
+  	
+  @Expose private final String name;
   private final String password;
-  private final String phone;
-  private final String email;
+  @Expose private final String phone;
+  @Expose private final String email;
   //private final List organizations;
   public User(String name, String password, String phone, String email){
     this.name = name;

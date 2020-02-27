@@ -8,6 +8,8 @@ import edu.cooper.ee.ece366.events.model.Organization;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
+
 import spark.Request;
 
 public class Handler {
@@ -27,22 +29,62 @@ public class Handler {
         return user;
     }
 
-    public Boolean logIn(Request request, HashMap<String, User> userSet){
+    public Optional<User> logIn(Request request, HashMap<String, User> userSet){
+        User u = userSet.get(request.queryParams("userEmail"));
+
         if (userSet.containsKey(request.queryParams("userEmail"))){
-            if (request.queryParams(("userPassword")).equals((userSet.get(request.queryParams("userEmail"))).getPassword())) {
+            if (request.queryParams(("userPassword")).equals(u.getPassword())) {
                 System.out.println("log in successful");
-                return true;
+                Optional<User> u_optional = Optional.of(u);
+                return u_optional;
             }
             else{
                 System.out.println("password incorrect");
-                return false;
+                return Optional.empty();
             }
 
         }
         else{
             System.out.println("User not found");
-            return false;
+            return Optional.empty();
         }
+
+
+        /*
+
+
+        Optional<User> u_optional;
+        if (u != null) {
+            u_optional = Optional.of(u);
+        } else {
+            return Optional.empty();
+        }
+        if (u.getPassword().equals(request.queryParams("userPassword"))) {
+            return u_optional;
+        }
+        return Optional.empty();
+*/
+//        u.ifPresent(user -> {System.out.println("User's name = " + user.getName());
+//        });
+//        request.queryParams(("userPassword")).equals(u.getPassword())
+//        u.ifPresent(user -> {System.out.println("User's name = " + user.getName());
+//        });
+//
+//        if (userSet.containsKey(request.queryParams("userEmail"))){
+//            if (request.queryParams(("userPassword")).equals(u.getPassword())) {
+//                System.out.println("log in successful");
+//                return u;
+//            }
+//            else{
+//                System.out.println("password incorrect");
+//                return u;
+//            }
+//
+//        }
+//        else{
+//            System.out.println("User not found");
+//            return u;
+//        }
 
     }
 

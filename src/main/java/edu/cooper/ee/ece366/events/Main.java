@@ -8,7 +8,6 @@ import edu.cooper.ee.ece366.events.model.Organization;
 import edu.cooper.ee.ece366.events.util.JsonTransformer;
 
 import java.util.*;
-import java.util.HashSet;
 
 public class Main {
 
@@ -27,14 +26,13 @@ public class Main {
       System.out.println(userSet);
       // Check for errors, check for duplicate users, hash password
       // Move this into handler
-      return res;//res;
+      return u;//res;
     }, jsonTransformer);
 
-    Spark.post("/logIn", (req, res) -> handler.logIn(req, userSet));
-    Spark.post("/createEvent", (req, res) -> handler.createEvent(req, userSet, eventSet));
-    Spark.post("/joinEvent", (req, res) -> handler.joinEvent(req, eventSet, userSet, eventUserMap));
-    Spark.get("/myEvents", (req, res) -> handler.myEvents(req, eventUserMap));
-    Spark.get("/upcomingEvents", (req, res) -> handler.upcomingEvents(req, eventSet));
-
+    Spark.post("/logIn", (req, res) -> handler.logIn(req, userSet),jsonTransformer);
+    Spark.post("/createEvent", (req, res) -> handler.createEvent(req, userSet, eventSet),jsonTransformer);
+    Spark.post("/joinEvent", (req, res) -> handler.joinEvent(req, eventSet, userSet, eventUserMap),jsonTransformer);
+    Spark.get("/myEvents", (req, res) -> handler.myEvents(req, eventUserMap),jsonTransformer);
+    Spark.get("/upcomingEvents", (req, res) -> handler.upcomingEvents(req, eventSet),jsonTransformer );
   }
 }
