@@ -12,19 +12,11 @@ import java.util.*;
 public class Main {
 
     public static void main(String[] args) {
-        HashMap<String, User> userSet = new HashMap<String, User>();
-        HashMap<String, Event> eventSet = new HashMap<String, Event>();
-        HashMap<Event, User> eventUserMap = new HashMap<Event, User>();
 
         Handler handler = new Handler();
         JsonTransformer jsonTransformer = new JsonTransformer();
 
-        Spark.get("/ping", (req, res) -> "OK");
-        Spark.post("/signUp", (req, res) -> {
-            User u = handler.createUser(req);
-            userSet.put(u.getEmail(), u);
-            return u;
-        }, jsonTransformer);
+        Spark.post("/signUp", (req, res) -> handler.signUp(req),jsonTransformer);
 
         Spark.post("/logIn", (req, res) -> {
             Optional<User> u = handler.logIn(req, userSet);
