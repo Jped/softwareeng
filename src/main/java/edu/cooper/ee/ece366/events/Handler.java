@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import spark.Request;
 
+
 // TODO ERROR: there are two types of things we need to check
 //      (1) if all the relevant parameters have been sent
 //      (2) if the parameters are wrong
@@ -28,11 +29,12 @@ public class Handler {
 
     public Handler() {}
 
-    public User signUp(Request request) {
+    public Optional<User> signUp(Request request) {
         if (userSet.containsKey(request.queryParams("userEmail"))) {
-            //TODO: Do some error stuff ( maybe return an optional and if optional is empty res is an error)
+            //TODO: Do some error stuff
+            return Optional.empty();
         } else {
-            service.createUser(
+            User  u = service.createUser(
                     getUserType(request),
                     request.queryParams("userName"),
                     request.queryParams("userPassword"),
@@ -40,12 +42,15 @@ public class Handler {
                     request.queryParams("userEmail"),
                     getDate(request.queryParams("userBirthday")),
                     getUserGender(request));
+            userSet.put(request.queryParams("userEmail"), u);
+            return Optional.of(u);
         }
     }
 
     public Optional<User> logIn(Request request) {
+        // TODO: discussion needs to be had with how we want to differentiate errors here
         if (!userSet.containsKey(request.queryParams("userEmail"))){
-            // TODO: raise email DNE error (or general error for login)
+            return Optional.empty();
         }
         else{
             User u = userSet.get(request.queryParams("userEmail"));
@@ -54,29 +59,33 @@ public class Handler {
                 return Optional.of(u);
             }
             else{
-                // TODO: work on errors here.
                 return Optional.empty();
             }
         }
     }
 
-    public Event createEvent(Request request) {
+    public Optional<Event> createEvent(Request request) {
         Event event;
         // TODO: Eventually we want this to be more secure, ie we need an org token to create an event
         if (!userSet.containsKey(request.queryParams("orgEmail"))) {
-            // TODO: orgname does not exist do something
+            return Optional.empty();
         } else {
-            event = service.createEvent(request.queryParams("eventName"), request.queryParams("orgName"), getDate(request.queryParams("eventDate")), request.queryParams("eventMessage"))
+            event = service.createEvent(
+                    request.queryParams("eventName"),
+                    request.queryParams("orgName"),
+                    getDate(request.queryParams("eventDate")),
+                    request.queryParams("eventMessage"));
             eventSet.put(request.queryParams("eventName"), event);
+            return Optional.of(event);
         }
     }
 
     public Boolean joinEvent(Request request) {
+        // TODO: Check if the user is already in the event
         if (eventSet.containsKey(request.queryParams("eventName"))) {
             eventUserHashMap.put(eventSet.get(request.queryParams("eventName")), userSet.get(request.queryParams("userEmail")));
             return true;
         } else {
-            System.out.println("Event not found");
             return false;
         }
     }
@@ -100,7 +109,8 @@ public class Handler {
     }
 
     private LocalDateTime getDate(String date) {
-        if(date == null) {
+        // TODO: verify that the date is in kosher format provided by the user
+        if(date != null) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             return LocalDateTime.parse(date, formatter);
         }

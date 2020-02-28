@@ -22,7 +22,7 @@ public class Service {
         if (isOrg) {
             user = new Organization(userName, BCrypt.hashpw(userPassword, BCrypt.gensalt()), userPhone, userEmail);
         } else {
-            user = new Member(userName, userPassword, userPhone, userEmail, userBirthday, userGender);
+            user = new Member(userName, BCrypt.hashpw(userPassword, BCrypt.gensalt()), userPhone, userEmail, userBirthday, userGender);
         }
         return user;
     }

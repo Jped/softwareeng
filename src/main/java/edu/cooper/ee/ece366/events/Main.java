@@ -16,11 +16,12 @@ public class Main {
         Handler handler = new Handler();
         JsonTransformer jsonTransformer = new JsonTransformer();
 
-        Spark.post("/signUp", (req, res) -> handler.signUp(req),jsonTransformer);
-        Spark.post("/logIn", (req, res) -> handler.logIn(req), jsonTransformer);
-        Spark.post("/createEvent", (req, res) -> handler.createEvent(req), jsonTransformer);
+        Spark.post("/signUp", (req, res) -> handler.signUp(req).orElse(null),jsonTransformer);
+        Spark.post("/logIn", (req, res) -> handler.logIn(req).orElse(null), jsonTransformer);
+        Spark.post("/createEvent", (req, res) -> handler.createEvent(req).orElse(null), jsonTransformer);
         Spark.post("/joinEvent", (req, res) -> handler.joinEvent(req), jsonTransformer);
         Spark.get("/myEvents", (req, res) -> handler.myEvents(req), jsonTransformer);
         Spark.get("/upcomingEvents", (req, res) -> handler.upcomingEvents(req), jsonTransformer);
     }
+
 }
