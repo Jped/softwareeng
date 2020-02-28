@@ -14,15 +14,19 @@ import java.util.Optional;
 
 import spark.Request;
 
+// TODO ERROR: there are two types of things we need to check
+//      (1) if all the relevant parameters have been sent
+//      (2) if the parameters are wrong
+//      with this information we need to update the res code
+
 public class Handler {
     HashMap<String, User> userSet = new HashMap<String, User>();
     HashMap<String, Event> eventSet = new HashMap<String, Event>();
-    HashMap<Event, User> eventUserMap = new HashMap<Event, User>();
+    HashMap<Event, User> eventUserHashMap = new HashMap<Event, User>();
 
     Service service = new Service();
 
-    public Handler() {
-    }
+    public Handler() {}
 
     public User signUp(Request request) {
         if (userSet.containsKey(request.queryParams("userEmail"))) {
@@ -34,81 +38,40 @@ public class Handler {
                     request.queryParams("userPassword"),
                     request.queryParams("userPhone"),
                     request.queryParams("userEmail"),
-                    getUserDate(request),
+                    getDate(request.queryParams("userBirthday")),
                     getUserGender(request));
         }
     }
 
-    public Optional<User> logIn(Request request, HashMap<String, User> userSet) {
-        User u = userSet.get(request.queryParams("userEmail"));
-
-        if (userSet.containsKey(request.queryParams("userEmail"))) {
-            if (request.queryParams(("userPassword")).equals(u.getPassword())) {
-                System.out.println("log in successful ");
-                Optional<User> u_optional = Optional.of(u);
-                return u_optional;
-            } else {
-                System.out.println("password incorrect");
+    public Optional<User> logIn(Request request) {
+        if (!userSet.containsKey(request.queryParams("userEmail"))){
+            // TODO: raise email DNE error (or general error for login)
+        }
+        else{
+            User u = userSet.get(request.queryParams("userEmail"));
+            Boolean correctPass = service.verifyPassword(u, request.queryParams("userPassword"));
+            if (correctPass){
+                return Optional.of(u);
+            }
+            else{
+                // TODO: work on errors here.
                 return Optional.empty();
             }
-
-        } else {
-            System.out.println("User not found");
-            return Optional.empty();
         }
-
-
-        /*
-
-
-        Optional<User> u_optional;
-        if (u != null) {
-            u_optional = Optional.of(u);
-        } else {
-            return Optional.empty();
-        }
-        if (u.getPassword().equals(request.queryParams("userPassword"))) {
-            return u_optional;
-        }
-        return Optional.empty();
-*/
-//        u.ifPresent(user -> {System.out.println("User's name = " + user.getName());
-//        });
-//        request.queryParams(("userPassword")).equals(u.getPassword())
-//        u.ifPresent(user -> {System.out.println("User's name = " + user.getName());
-//        });
-//
-//        if (userSet.containsKey(request.queryParams("userEmail"))){
-//            if (request.queryParams(("userPassword")).equals(u.getPassword())) {
-//                System.out.println("log in successful");
-//                return u;
-//            }
-//            else{
-//                System.out.println("password incorrect");
-//                return u;
-//            }
-//
-//        }
-//        else{
-//            System.out.println("User not found");
-//            return u;
-//        }
-
     }
 
-    public Event createEvent(Request request, HashMap<String, User> userSet, HashMap<String, Event> eventSet) {
+    public Event createEvent(Request request) {
         Event event;
-        if (userSet.containsKey(request.queryParams("orgEmail"))) {
-            event = new Event(request.queryParams("eventName"), request.queryParams("orgName"), request.queryParams("eventDate"), request.queryParams("eventMessage"));
-            eventSet.put(request.queryParams("eventName"), event);
+        // TODO: Eventually we want this to be more secure, ie we need an org token to create an event
+        if (!userSet.containsKey(request.queryParams("orgEmail"))) {
+            // TODO: orgname does not exist do something
         } else {
-            System.out.println("Organization not found");
-            event = null;
+            event = service.createEvent(request.queryParams("eventName"), request.queryParams("orgName"), getDate(request.queryParams("eventDate")), request.queryParams("eventMessage"))
+            eventSet.put(request.queryParams("eventName"), event);
         }
-        return event;
     }
 
-    public Boolean joinEvent(Request request, HashMap<String, Event> eventSet, HashMap<String, User> userSet, HashMap<Event, User> eventUserHashMap) {
+    public Boolean joinEvent(Request request) {
         if (eventSet.containsKey(request.queryParams("eventName"))) {
             eventUserHashMap.put(eventSet.get(request.queryParams("eventName")), userSet.get(request.queryParams("userEmail")));
             return true;
@@ -118,23 +81,13 @@ public class Handler {
         }
     }
 
-    public ArrayList<Event> myEvents(Request request, HashMap<Event, User> eventUserHashMap) {
-        ArrayList<Event> myEvents = new ArrayList<Event>();
-        eventUserHashMap.forEach((event, user) -> {
-            if (((user.getEmail())).equals(request.queryParams("userEmail"))) {
-                myEvents.add(event);
-            }
-        });
-
+    public ArrayList<Event> myEvents(Request request) {
+        ArrayList<Event> myEvents = service.getMyEvents(eventUserHashMap, request.queryParams("userEmail"));
         return myEvents;
     }
 
-    public ArrayList<Event> upcomingEvents(Request request, HashMap<String, Event> eventSet) {
-        ArrayList<Event> upcomingEvents = new ArrayList<Event>();
-        eventSet.forEach((name, event) -> {
-            //Check if date has passed
-            upcomingEvents.add(event);
-        });
+    public ArrayList<Event> upcomingEvents(Request request) {
+        ArrayList<Event> upcomingEvents = service.getUpcomingEvents(eventSet);
         return upcomingEvents;
     }
 
@@ -146,10 +99,10 @@ public class Handler {
         return Boolean.valueOf(request.queryParams("userGender"));
     }
 
-    private LocalDateTime getUserDate(Request request) {
-        if(request.queryParams("userBirthday") == null) {
+    private LocalDateTime getDate(String date) {
+        if(date == null) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            return LocalDateTime.parse(request.queryParams("userBirthday"), formatter);
+            return LocalDateTime.parse(date, formatter);
         }
         return LocalDateTime.now();
     }
