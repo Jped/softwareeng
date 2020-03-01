@@ -9,6 +9,7 @@ public class JsonTransformer implements ResponseTransformer {
     private final Gson gson =
             new GsonBuilder()
                     .enableComplexMapKeySerialization()
+                    .setPrettyPrinting()
                     .excludeFieldsWithoutExposeAnnotation()
                     .create();
 
