@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import spark.Request;
 import spark.Response;
@@ -33,19 +34,26 @@ public class Handler {
 
     public Optional<User> signUp(Request request, Response response) {
         // Check if minimum parameters to signUp are provided: email and password
-        if (request.queryParams("userEmail") == null) {
-            System.out.println("No email provided");
+        if (request.queryParams("userEmail") == null || request.queryParams("userPassword") == null) {
             response.status(400);
-            response.body("No email provided");
+            response.body("Missing field");
+            System.out.println("Missing field");
             return Optional.empty();
         }
-        else if (request.queryParams("userPassword") == null) {
-            System.out.println("No password provided");
+        // Check if user email contains an @ symbol between at least 1 character on either side
+        else if (!Pattern.matches("[A-Z,a-z,0-9]+@[A-Z,a-z,0-9]+", request.queryParams("userEmail"))) {
             response.status(400);
-            response.body("No password provided");
+            response.body("Email format incorrect");
+            System.out.println("Email format incorrect");
             return Optional.empty();
         }
-        //Check that has an @symbol. Compare that before at is different
+        // Check if password is between 6 and 100 alphanumeric characters and is not the same as any other field
+        else if (!Pattern.matches("[A-Z,a-z,0-9]{6,}", request.queryParams("userPassword")) | request.queryParams("userPassword") == ) {
+            response.status(400);
+            response.body("Email format incorrect");
+            System.out.println("Email format incorrect");
+            return Optional.empty();
+        }
         // If user is already signed up, error code 409
         else if (userSet.containsKey(request.queryParams("userEmail"))) {
             //TODO: Do some error stuff
