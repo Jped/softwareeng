@@ -91,12 +91,10 @@ public class Handler {
         }
     }
 
-    public Optional<Event> createEvent(Request request) {
+    public Optional<Event> createEvent(Request request, Response response) {
         Event event;
         // TODO: Eventually we want this to be more secure, ie we need an org token to create an event
-        if (!userSet.containsKey(request.queryParams("orgEmail"))) {
-            return Optional.empty();
-        } else {
+        if (Validate.createEvent(request,response,userSet,eventSet)) {
             event = service.createEvent(
                     request.queryParams("eventName"),
                     request.queryParams("orgName"),
@@ -104,6 +102,9 @@ public class Handler {
                     request.queryParams("eventMessage"));
             eventSet.put(request.queryParams("eventName"), event);
             return Optional.of(event);
+        }
+        else { // Event could not be created. Response was modified to reflect the error.
+            return Optional.empty();
         }
     }
 

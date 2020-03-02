@@ -1,11 +1,13 @@
 package edu.cooper.ee.ece366.events.util;
 
 import edu.cooper.ee.ece366.events.Handler;
+import edu.cooper.ee.ece366.events.model.Event;
 import edu.cooper.ee.ece366.events.model.User;
 import spark.Request;
 import spark.Response;
 
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class Validate {
@@ -16,14 +18,12 @@ public class Validate {
         String userPassword = request.queryParams("userPassword");
 
         // Check if minimum parameters to signUp are provided:
-        // email, password, userType, userName, userPhone, gender (userBirthday is optional)
+        // email, password, userType, userName, userPhone, (gender and userBirthday is optional - both of these only apply to members)
         if (    userEmail == null ||
                 userPassword == null ||
                 request.queryParams("userName") == null ||
                 request.queryParams("userType") == null ||
-                request.queryParams("userPhone") == null ||
-                request.queryParams("gender") == null
-        ) {
+                request.queryParams("userPhone") == null) {
             Handler.UpdateResponse(response, 400, "Missing field");
             return false;
         }
@@ -53,11 +53,6 @@ public class Validate {
             Handler.UpdateResponse(response, 400, "userType not acceptable. Enter 'true' for an organization and 'false' for a member.");
             return false;
         }
-        // Validate gender - must be String true or false, case insensitive
-        else if (!Pattern.matches("(?i)false|(?i)true|0", request.queryParams("gender").strip())) {
-            Handler.UpdateResponse(response, 400, "gender not acceptable. Enter 'true' for a -- and 'false' for --.");
-            return false;
-        }
         // Validate userPhone
         else if (!validatePhoneNumber(request.queryParams("userPhone"))) {
             Handler.UpdateResponse(response, 400, "userPhone not acceptable");
@@ -70,9 +65,61 @@ public class Validate {
             return false;
         }
         else {
+            // If user is of member type, additional checks:
+            if (Pattern.matches("(?i)false|0", request.queryParams("userType").strip())) {
+                // Validate gender - must be String true or false, case insensitive
+                if (!Pattern.matches("(?i)false|(?i)true|0", request.queryParams("gender").strip())) {
+                    Handler.UpdateResponse(response, 400, "gender not acceptable. Enter 'true' for a -- and 'false' for --.");
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            }
+            // If user is of org type:
             return true;
         }
     }
+
+
+    //Passed in userSet,eventSet only because of in memory configuration. This should be changed when db integrated.
+    public static Boolean createEvent(Request request, Response response, HashMap<String, User> userSet, HashMap<String, Event> eventSet) {
+        // Check whether orgEmail is registered
+        if (!userSet.containsKey(request.queryParams("orgEmail"))) {
+            Handler.UpdateResponse(response, 404, "This organization email is not registered.");
+            return false;
+        }
+        // Check if minimum parameters to createEvent are provided: (
+        // eventName, orgName, eventDate (eventMessage is optional), (don't need to check orgEmail bc if reach here then already found it in userSet)
+        else if (request.queryParams("eventName") == null ||
+                request.queryParams("orgName") == null ||
+                request.queryParams("eventDate") == null) {
+            Handler.UpdateResponse(response, 400, "Missing field");
+            return false;
+        }
+        // Validate provided parameters:
+        // Validate that orgName in db matches the one provided in the request, for the given email address
+        else if (!userSet.get(request.queryParams("orgEmail")).getName().equals(request.queryParams("orgName"))) {
+            Handler.UpdateResponse(response, 404, "OrgName provided does not match record");
+            return false;
+        }
+        // TODO: Validate eventDate
+        else {
+            // Check if event already exists in list of events
+            if (eventSet.get(request.queryParams("eventName")) != null) {
+                // If event already exists, check whether this event is registered under the particular org of interest
+                if (eventSet.get(request.queryParams("eventName")).getOrgName().equals(request.queryParams("orgName"))) {
+                    Handler.UpdateResponse(response, 409, "This event already exists for the given organization.");
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            }
+            return true;
+        }
+    }
+
 
     // Used to validate phone number. Source: https://www.journaldev.com/641/regular-expression-phone-number-validation-in-java
     private static boolean validatePhoneNumber(String phoneNo) {

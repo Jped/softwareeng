@@ -36,7 +36,8 @@ curl -i localhost:4567/signUp -X post --data "userName=Rebecca&userPassword=reb1
 curl -i localhost:4567/signUp -X post --data "userName=Rebecca&userPassword=reb123&userEmail=reb@gmail.com&userPhone=blah&userType=0&gender=0"
 
 
-### logIn
+######### logIn
+
 # Should login properly
 curl -i localhost:4567/logIn -X post --data "userEmail=shifra@gmail.com&userPassword=shif123"
 
@@ -47,3 +48,28 @@ curl -i localhost:4567/logIn -X post --data "userPassword=shif123"
 curl -i localhost:4567/logIn -X post --data "userEmail=shifra1111@gmail.com&userPassword=shif123"
 # Wrong password
 curl -i localhost:4567/logIn -X post --data "userEmail=shifra@gmail.com&userPassword=shif123000"
+
+
+
+######## createEvent
+# First register an org
+curl -i localhost:4567/signUp -X post --data "userName=ChabadBowery&userPassword=chabad123&userPhone=7326063409&userEmail=chabad@bowery.com&userType=true"
+# Create an event (should be successful)
+curl -i localhost:4567/createEvent -X post --data "eventName=ShabbatDinner&orgName=ChabadBowery&eventDate=2020-09-22 12:30:34&orgEmail=chabad@bowery.com&eventMessage=blah"
+
+# Missing fields
+curl -i localhost:4567/createEvent -X post --data "eventName=ShabbatDinner&orgName=ChabadBowery&eventDate=2020-09-22 12:30:34&eventMessage=blah"
+# Unregistered email
+curl -i localhost:4567/createEvent -X post --data "eventName=ShabbatDinner&orgName=ChabadBowery&eventDate=2020-09-22 12:30:34&orgEmail=chabad@bowery_2.com&eventMessage=blah"
+# Mismatch between email and username
+curl -i localhost:4567/createEvent -X post --data "eventName=ShabbatDinner&orgName=Shifra&eventDate=2020-09-22 12:30:34&orgEmail=chabad@bowery.com&eventMessage=blah"
+curl -i localhost:4567/createEvent -X post --data "eventName=ShabbatDinner&orgName=ChabadBowery&eventDate=2020-09-22 12:30:34&orgEmail=ch@bowery.com&eventMessage=blah"
+# Reregister an event that exists
+curl -i localhost:4567/createEvent -X post --data "eventName=ShabbatDinner&orgName=ChabadBowery&eventDate=2020-09-22 12:30:34&orgEmail=chabad@bowery.com&eventMessage=blah"
+
+# Register a second org
+curl -i localhost:4567/signUp -X post --data "userName=HillelNYU&userPassword=hillel123&userPhone=7326063409&userEmail=hillel@nyu.com&userType=true"
+# Create an event with same name as other event but dif org
+curl -i localhost:4567/createEvent -X post --data "eventName=ShabbatDinner&orgName=HillelNYU&eventDate=2020-09-22 12:30:34&orgEmail=hillel@nyu.com&eventMessage=blah"
+
+
