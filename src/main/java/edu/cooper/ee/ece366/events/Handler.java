@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import edu.cooper.ee.ece366.events.util.Validate;
 import org.eclipse.jetty.http.HttpParser;
 import spark.Request;
 import spark.Response;
@@ -34,56 +35,28 @@ public class Handler {
     public Handler() {}
 
     public Optional<User> signUp(Request request, Response response) {
-        /*String userEmail = request.queryParams("userEmail");
-        String userPassword = request.queryParams("userPassword");
+        if (Validate.signUp(request,response,userSet)) {  //Passed in userSet only because of in memory configuration. This should be changed when db integrated.
+            User  u = service.createUser(
+                    getUserType(request),
+                    request.queryParams("userName"),
+                    request.queryParams("userPassword"),
+                    request.queryParams("userPhone"),
+                    request.queryParams("userEmail"),
+                    getDate(request.queryParams("userBirthday")),
+                    getUserGender(request));
+            userSet.put(request.queryParams("userEmail"), u);
 
-        // Check if minimum parameters to signUp are provided: email and password
-        if (userEmail == null || userPassword == null) {
-            UpdateResponse(response, 400, "Missing field");
-            //System.out.println("Missing field");
+            response.status(200);
+            response.body(String.valueOf(u));
+
+            return Optional.of(u);
+        }
+        else {  //User could not be signed up. Response code and message were returned with more details.
             return Optional.empty();
         }
-        // Validate email address
-        else if (!Pattern.matches("^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$", userEmail)) {
-            UpdateResponse(response, 400, "Email format incorrect");
-            System.out.println("Email format incorrect");
-            return Optional.empty();
-        }
-        // Check if password is between 6 and 100 alphanumeric characters and is not the same as any email field
-        else if (!Pattern.matches("[A-Z,a-z,0-9]{6,}", userPassword) | userEmail.equals(userPassword)) {
-            UpdateResponse(response, 400, "Password not acceptable");
-            System.out.println("Password not acceptable");
-            return Optional.empty();
-        }
-        // If user is already signed up, error code 409
-        else if (userSet.containsKey(request.queryParams("userEmail"))) {
-            response.status(409);
-            response.body("No new user was signed up because a user already exists with this email address.");
-            System.out.println("No new user was signed up because a user already exists with this email address.");
-            return Optional.empty();
-        } else {*/
-            if (Validate_signUp(request,response)) {
-                User  u = service.createUser(
-                        getUserType(request),
-                        request.queryParams("userName"),
-                        request.queryParams("userPassword"),
-                        request.queryParams("userPhone"),
-                        request.queryParams("userEmail"),
-                        getDate(request.queryParams("userBirthday")),
-                        getUserGender(request));
-                userSet.put(request.queryParams("userEmail"), u);
+    }
 
-                response.status(200);
-                response.body(String.valueOf(u));
-
-                return Optional.of(u);
-            }
-            else {  //User could not be signed up. Response code and message were returned with more details.
-                return Optional.empty();
-            }
-        }
-
-    private Boolean Validate_signUp(Request request, Response response) {
+    /*private Boolean Validate_signUp(Request request, Response response) {
         String userEmail = request.queryParams("userEmail");
         String userPassword = request.queryParams("userPassword");
 
@@ -135,24 +108,24 @@ public class Handler {
             UpdateResponse(response, 400, "userPhone not acceptable");
             return false;
         }
-        // If user is already signed up, error code 409
+        // TODO: Validate birthday
+        // Check if user is already signed up
         else if (userSet.containsKey(request.queryParams("userEmail"))) {
-            response.status(409);
-            response.body("No new user was signed up because a user already exists with this email address.");
+            UpdateResponse(response, 409, "No new user was signed up because a user already exists with this email address.");
             return false;
         }
         else {
             return true;
             }
-    }
+    }*/
 
-    private void UpdateResponse(Response response, Integer code, String message) {
+    public static void UpdateResponse(Response response, Integer code, String message) {
         response.status(code);
         response.body(message);
         System.out.println(message);
     }
 
-    // Used to validate phone number. Source: https://www.journaldev.com/641/regular-expression-phone-number-validation-in-java
+    /*// Used to validate phone number. Source: https://www.journaldev.com/641/regular-expression-phone-number-validation-in-java
     private static boolean validatePhoneNumber(String phoneNo) {
         //validate phone numbers of format "1234567890"
         if (phoneNo.matches("\\d{10}")) return true;
@@ -164,7 +137,7 @@ public class Handler {
         else if(phoneNo.matches("\\(\\d{3}\\)-\\d{3}-\\d{4}")) return true;
             //return false if nothing matches the input
         else return false;
-    }
+    }*/
 
     public Optional<User> logIn(Request request) {
         // TODO: discussion needs to be had with how we want to differentiate errors here
