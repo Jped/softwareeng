@@ -19,9 +19,9 @@ public class Main {
         Spark.post("/signUp", (req, res) -> handler.signUp(req, res).orElse(null),jsonTransformer);
         Spark.post("/logIn", (req, res) -> handler.logIn(req, res).orElse(null), jsonTransformer);
         Spark.post("/createEvent", (req, res) -> handler.createEvent(req, res).orElse(null), jsonTransformer);
-        Spark.post("/joinEvent", (req, res) -> handler.joinEvent(req), jsonTransformer);
-        Spark.get("/myEvents", (req, res) -> handler.myEvents(req), jsonTransformer);
-        Spark.get("/upcomingEvents", (req, res) -> handler.upcomingEvents(req), jsonTransformer);
+        Spark.post("/joinEvent", (req, res) -> handler.joinEvent(req, res), jsonTransformer);
+        Spark.get("/myEvents", (req, res) -> handler.myEvents(req, res), jsonTransformer);
+        Spark.get("/upcomingEvents", (req, res) -> handler.upcomingEvents(req, res), jsonTransformer);
     }
 
 }

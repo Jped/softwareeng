@@ -73,3 +73,7 @@ curl -i localhost:4567/signUp -X post --data "userName=HillelNYU&userPassword=hi
 curl -i localhost:4567/createEvent -X post --data "eventName=ShabbatDinner&orgName=HillelNYU&eventDate=2020-09-22 12:30:34&orgEmail=hillel@nyu.com&eventMessage=blah"
 
 
+
+
+######### joinEvent
+curl -i localhost:4567/joinEvent -X post --data "userEmail=shifra@gmail.com&eventName=ShabbatDinner"

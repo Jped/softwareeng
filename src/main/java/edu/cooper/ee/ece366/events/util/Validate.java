@@ -103,23 +103,41 @@ public class Validate {
             Handler.UpdateResponse(response, 404, "OrgName provided does not match record");
             return false;
         }
+        // If event already exists, check whether this event is registered under the particular org of interest
+        else if (eventSet.containsKey(request.queryParams("eventName")) &&
+                 eventSet.get(request.queryParams("eventName")).getOrgName().equals(request.queryParams("orgName"))) {
+            Handler.UpdateResponse(response, 409, "This event already exists for the given organization.");
+            return false;
+        }
         // TODO: Validate eventDate
         else {
-            // Check if event already exists in list of events
-            if (eventSet.get(request.queryParams("eventName")) != null) {
-                // If event already exists, check whether this event is registered under the particular org of interest
-                if (eventSet.get(request.queryParams("eventName")).getOrgName().equals(request.queryParams("orgName"))) {
-                    Handler.UpdateResponse(response, 409, "This event already exists for the given organization.");
-                    return false;
-                }
-                else {
-                    return true;
-                }
-            }
             return true;
         }
     }
 
+
+    public static boolean joinEvent(Request request, Response response, HashMap<String, User> userSet, HashMap<String, Event> eventSet, HashMap<Event, User> eventUserHashMap) {
+        // Check that user email provided and eventName provided
+        if (request.queryParams("eventName") == null || request.queryParams("userEmail") == null) {
+            Handler.UpdateResponse(response, 400, "Missing field");
+            return false;
+        }
+        // Check if user exists
+        else if (!userSet.containsKey(request.queryParams("userEmail"))) {
+            Handler.UpdateResponse(response, 400, "No such user exists");
+            return false;
+        }
+        // Check if event exists
+        // For now, we assume each event name is unique but in future should allow multiple orgs to have same event
+        else if (!eventSet.containsKey(request.queryParams("eventName"))) {
+            Handler.UpdateResponse(response, 400, "No such event exists");
+            return false;
+        }
+        // TODO: Check if user already in event. This should be implemented after db integration.
+        else {
+            return true;
+        }
+    }
 
     // Used to validate phone number. Source: https://www.journaldev.com/641/regular-expression-phone-number-validation-in-java
     private static boolean validatePhoneNumber(String phoneNo) {
@@ -134,4 +152,6 @@ public class Validate {
             //return false if nothing matches the input
         else return false;
     }
+
+
 }

@@ -101,6 +101,8 @@ public class Handler {
                     getDate(request.queryParams("eventDate")),
                     request.queryParams("eventMessage"));
             eventSet.put(request.queryParams("eventName"), event);
+
+            UpdateResponse(response,200,String.valueOf(event));
             return Optional.of(event);
         }
         else { // Event could not be created. Response was modified to reflect the error.
@@ -108,22 +110,24 @@ public class Handler {
         }
     }
 
-    public Boolean joinEvent(Request request) {
-        // TODO: Check if the user is already in the event
-        if (eventSet.containsKey(request.queryParams("eventName"))) {
+    public Boolean joinEvent(Request request, Response response) {
+        // For now, we assume each event name is unique but in future should allow multiple orgs to have same event
+        if (Validate.joinEvent(request,response,userSet,eventSet,eventUserHashMap)) {
             eventUserHashMap.put(eventSet.get(request.queryParams("eventName")), userSet.get(request.queryParams("userEmail")));
+            UpdateResponse(response, 200, "Joined event successfully");
             return true;
-        } else {
+        }
+        else {
             return false;
         }
     }
 
-    public ArrayList<Event> myEvents(Request request) {
+    public ArrayList<Event> myEvents(Request request, Response response) {
         ArrayList<Event> myEvents = service.getMyEvents(eventUserHashMap, request.queryParams("userEmail"));
         return myEvents;
     }
 
-    public ArrayList<Event> upcomingEvents(Request request) {
+    public ArrayList<Event> upcomingEvents(Request request, Response response) {
         ArrayList<Event> upcomingEvents = service.getUpcomingEvents(eventSet);
         return upcomingEvents;
     }
