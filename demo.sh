@@ -1,3 +1,5 @@
+### signUp
+
 #All fields present - should signUp properly
 curl -i localhost:4567/signUp -X post --data "userName=Shifra&userPassword=shif123&userEmail=shifra@gmail.com&userPhone=7324324444&userType=0&gender=0"
 
@@ -32,3 +34,16 @@ curl -i localhost:4567/signUp -X post --data "userName=Rebecca&userPassword=reb1
 # Wrong phone
 curl -i localhost:4567/signUp -X post --data "userName=Rebecca&userPassword=reb123&userEmail=reb@gmail.com&userPhone=73243244&userType=0&gender=0"
 curl -i localhost:4567/signUp -X post --data "userName=Rebecca&userPassword=reb123&userEmail=reb@gmail.com&userPhone=blah&userType=0&gender=0"
+
+
+### logIn
+# Should login properly
+curl -i localhost:4567/logIn -X post --data "userEmail=shifra@gmail.com&userPassword=shif123"
+
+# Missing fields
+curl -i localhost:4567/logIn -X post --data "userEmail=shifra@gmail.com"
+curl -i localhost:4567/logIn -X post --data "userPassword=shif123"
+# Wrong email not registered
+curl -i localhost:4567/logIn -X post --data "userEmail=shifra1111@gmail.com&userPassword=shif123"
+# Wrong password
+curl -i localhost:4567/logIn -X post --data "userEmail=shifra@gmail.com&userPassword=shif123000"

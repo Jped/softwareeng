@@ -34,6 +34,12 @@ public class Handler {
 
     public Handler() {}
 
+    public static void UpdateResponse(Response response, Integer code, String message) {
+        response.status(code);
+        response.body(message);
+        System.out.println(message);
+    }
+
     public Optional<User> signUp(Request request, Response response) {
         if (Validate.signUp(request,response,userSet)) {  //Passed in userSet only because of in memory configuration. This should be changed when db integrated.
             User  u = service.createUser(
@@ -46,8 +52,7 @@ public class Handler {
                     getUserGender(request));
             userSet.put(request.queryParams("userEmail"), u);
 
-            response.status(200);
-            response.body(String.valueOf(u));
+            UpdateResponse(response,200,String.valueOf(u));
 
             return Optional.of(u);
         }
@@ -56,101 +61,31 @@ public class Handler {
         }
     }
 
-    /*private Boolean Validate_signUp(Request request, Response response) {
+
+    public Optional<User> logIn(Request request, Response response) {
+        // TODO: discussion needs to be had with how we want to differentiate errors here
         String userEmail = request.queryParams("userEmail");
         String userPassword = request.queryParams("userPassword");
 
-        // Check if minimum parameters to signUp are provided:
-        // email, password, userType, userName, userPhone, gender (userBirthday is optional)
-        if (    userEmail == null ||
-                userPassword == null ||
-                request.queryParams("userName") == null ||
-                request.queryParams("userType") == null ||
-                request.queryParams("userPhone") == null ||
-                request.queryParams("gender") == null
-           ) {
-            UpdateResponse(response, 400, "Missing field");
-            return false;
+        // Check if parameters to logIn are provided: email and password. This avoids an unnecessary db query.
+        if (userEmail == null || userPassword == null) {
+            Handler.UpdateResponse(response, 400, "Missing field");
+            return Optional.empty();
         }
-
-        // Validate provided parameters:
-        // Validate email address
-        else if (!Pattern.matches("^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$", userEmail)) {
-            UpdateResponse(response, 400, "Email format incorrect");
-            return false;
-        }
-        // Check if password is between 6 and 100 alphanumeric characters and ensure not the same userName, userEmail, userPhone
-        else if (!Pattern.matches("[A-Z,a-z,0-9]{6,}", userPassword) ||
-                userPassword.equals(userEmail) ||
-                userPassword.equals(request.queryParams("userName")) ||
-                userPassword.equals(request.queryParams("userPhone"))
-        ) {
-            UpdateResponse(response, 400, "Password not acceptable");
-            return false;
-        }
-        // Validate userName
-        else if (!Pattern.matches("[A-Za-z0-9_\\.]+", request.queryParams("userName"))) {
-            UpdateResponse(response, 400, "Username not acceptable");
-            return false;
-        }
-        // Validate userType - must be String true or false, case insensitive
-        else if (!Pattern.matches("(?i)false|(?i)true|0", request.queryParams("userType").strip())) {
-            UpdateResponse(response, 400, "userType not acceptable. Enter 'true' for an organization and 'false' for a member.");
-            return false;
-        }
-        // Validate gender - must be String true or false, case insensitive
-        else if (!Pattern.matches("(?i)false|(?i)true|0", request.queryParams("gender").strip())) {
-            UpdateResponse(response, 400, "gender not acceptable. Enter 'true' for a -- and 'false' for --.");
-            return false;
-        }
-        // Validate userPhone
-        else if (!validatePhoneNumber(request.queryParams("userPhone"))) {
-            UpdateResponse(response, 400, "userPhone not acceptable");
-            return false;
-        }
-        // TODO: Validate birthday
-        // Check if user is already signed up
-        else if (userSet.containsKey(request.queryParams("userEmail"))) {
-            UpdateResponse(response, 409, "No new user was signed up because a user already exists with this email address.");
-            return false;
-        }
-        else {
-            return true;
-            }
-    }*/
-
-    public static void UpdateResponse(Response response, Integer code, String message) {
-        response.status(code);
-        response.body(message);
-        System.out.println(message);
-    }
-
-    /*// Used to validate phone number. Source: https://www.journaldev.com/641/regular-expression-phone-number-validation-in-java
-    private static boolean validatePhoneNumber(String phoneNo) {
-        //validate phone numbers of format "1234567890"
-        if (phoneNo.matches("\\d{10}")) return true;
-            //validating phone number with -, . or spaces
-        else if(phoneNo.matches("\\d{3}[-\\.\\s]\\d{3}[-\\.\\s]\\d{4}")) return true;
-            //validating phone number with extension length from 3 to 5
-        else if(phoneNo.matches("\\d{3}-\\d{3}-\\d{4}\\s(x|(ext))\\d{3,5}")) return true;
-            //validating phone number where area code is in braces ()
-        else if(phoneNo.matches("\\(\\d{3}\\)-\\d{3}-\\d{4}")) return true;
-            //return false if nothing matches the input
-        else return false;
-    }*/
-
-    public Optional<User> logIn(Request request) {
-        // TODO: discussion needs to be had with how we want to differentiate errors here
-        if (!userSet.containsKey(request.queryParams("userEmail"))){
+        // Ensure userEmail is already signedUp
+        if (!userSet.containsKey(userEmail)){
+            Handler.UpdateResponse(response, 404, "This userEmail is not registered.");
             return Optional.empty();
         }
         else{
-            User u = userSet.get(request.queryParams("userEmail"));
-            Boolean correctPass = service.verifyPassword(u, request.queryParams("userPassword"));
+            User u = userSet.get(userEmail);
+            Boolean correctPass = service.verifyPassword(u, userPassword);
             if (correctPass){
+                UpdateResponse(response,200,"Log-in successful");
                 return Optional.of(u);
             }
             else{
+                UpdateResponse(response,404,"Log-in failed");
                 return Optional.empty();
             }
         }

@@ -17,7 +17,7 @@ public class Main {
         JsonTransformer jsonTransformer = new JsonTransformer();
 
         Spark.post("/signUp", (req, res) -> handler.signUp(req, res).orElse(null),jsonTransformer);
-        Spark.post("/logIn", (req, res) -> handler.logIn(req).orElse(null), jsonTransformer);
+        Spark.post("/logIn", (req, res) -> handler.logIn(req, res).orElse(null), jsonTransformer);
         Spark.post("/createEvent", (req, res) -> handler.createEvent(req).orElse(null), jsonTransformer);
         Spark.post("/joinEvent", (req, res) -> handler.joinEvent(req), jsonTransformer);
         Spark.get("/myEvents", (req, res) -> handler.myEvents(req), jsonTransformer);
