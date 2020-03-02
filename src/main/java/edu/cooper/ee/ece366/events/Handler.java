@@ -45,15 +45,13 @@ public class Handler {
         }
         // Check if user email contains an @ symbol between at least 1 character on either side
         else if (!Pattern.matches("[A-Z,a-z,0-9]+@[A-Z,a-z,0-9]+", userEmail)) {
-            response.status(400);
-            response.body("Email format incorrect");
+            UpdateResponse(response, 400, "Email format incorrect");
             System.out.println("Email format incorrect");
             return Optional.empty();
         }
         // Check if password is between 6 and 100 alphanumeric characters and is not the same as any email field
         else if (!Pattern.matches("[A-Z,a-z,0-9]{6,}", userPassword) | userEmail.equals(userPassword)) {
-            response.status(400);
-            response.body("Password not acceptable");
+            UpdateResponse(response, 400, "Password not acceptable");
             System.out.println("Password not acceptable");
             return Optional.empty();
         }
