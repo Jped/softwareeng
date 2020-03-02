@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import org.eclipse.jetty.http.HttpParser;
 import spark.Request;
 import spark.Response;
 
@@ -33,37 +34,34 @@ public class Handler {
     public Handler() {}
 
     public Optional<User> signUp(Request request, Response response) {
+        String userEmail = request.queryParams("userEmail");
+        String userPassword = request.queryParams("userPassword");
+
         // Check if minimum parameters to signUp are provided: email and password
-        if (request.queryParams("userEmail") == null || request.queryParams("userPassword") == null) {
-            response.status(400);
-            response.body("Missing field");
-            System.out.println("Missing field");
+        if (userEmail == null || userPassword == null) {
+            UpdateResponse(response, 400, "Missing field");
+            //System.out.println("Missing field");
             return Optional.empty();
         }
         // Check if user email contains an @ symbol between at least 1 character on either side
-        else if (!Pattern.matches("[A-Z,a-z,0-9]+@[A-Z,a-z,0-9]+", request.queryParams("userEmail"))) {
+        else if (!Pattern.matches("[A-Z,a-z,0-9]+@[A-Z,a-z,0-9]+", userEmail)) {
             response.status(400);
             response.body("Email format incorrect");
             System.out.println("Email format incorrect");
             return Optional.empty();
         }
-        // Check if password is between 6 and 100 alphanumeric characters and is not the same as any other field
-        else if (!Pattern.matches("[A-Z,a-z,0-9]{6,}", request.queryParams("userPassword")) | request.queryParams("userPassword") == ) {
+        // Check if password is between 6 and 100 alphanumeric characters and is not the same as any email field
+        else if (!Pattern.matches("[A-Z,a-z,0-9]{6,}", userPassword) | userEmail.equals(userPassword)) {
             response.status(400);
-            response.body("Email format incorrect");
-            System.out.println("Email format incorrect");
+            response.body("Password not acceptable");
+            System.out.println("Password not acceptable");
             return Optional.empty();
         }
         // If user is already signed up, error code 409
         else if (userSet.containsKey(request.queryParams("userEmail"))) {
-            //TODO: Do some error stuff
-            JsonObject json = new JsonObject();
-            json.addProperty("message","No new user was signed up because a user already exists with this email address.");
             response.status(409);
-            response.type("application/json");
-            //response.body("No new user was signed up because a user already exists with this email address.");
-            response.body(String.valueOf(json));
-
+            response.body("No new user was signed up because a user already exists with this email address.");
+            System.out.println("No new user was signed up because a user already exists with this email address.");
             return Optional.empty();
         } else {
             User  u = service.createUser(
@@ -81,6 +79,11 @@ public class Handler {
 
             return Optional.of(u);
         }
+    }
+
+    private void UpdateResponse(Response response, Integer code, String message) {
+        response.status(code);
+        response.body(message);
     }
 
     public Optional<User> logIn(Request request) {
