@@ -124,6 +124,7 @@ public class Handler {
 
     public ArrayList<Event> myEvents(Request request, Response response) {
         ArrayList<Event> myEvents = service.getMyEvents(eventUserHashMap, request.queryParams("userEmail"));
+        UpdateResponse(response, 200, String.valueOf(myEvents));
         return myEvents;
     }
 
