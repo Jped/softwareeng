@@ -19,5 +19,16 @@ curl -i localhost:4567/signUp -X post --data "userName=Rebecca&userPassword=Rebe
 curl -i localhost:4567/signUp -X post --data "userName=Rebecca&userPassword=reb@gmail.com&userEmail=reb@gmail.com&userPhone=7324324444&userType=0&gender=0"
 curl -i localhost:4567/signUp -X post --data "userName=Rebecca&userPassword=7324324444&userEmail=reb@gmail.com&userPhone=7324324444&userType=0&gender=0"
 
+# Wrong username
+#curl -i localhost:4567/signUp -X post --data "userName=***&userPassword=reb123&userEmail=reb@gmail.com&userPhone=7324324444&userType=0&gender=0"
 
-#curl -i localhost:4567/signUp -X post --data "userName=Rebecca&userPassword=reb123&userEmail=reb@gmail.com&userPhone=7324324444&userType=0&gender=0"
+# Wrong userType (same code for gender)
+curl -i localhost:4567/signUp -X post --data "userName=Rebecca&userPassword=reb123&userEmail=reb@gmail.com&userPhone=7324324444&userType=1&gender=0"
+curl -i localhost:4567/signUp -X post --data "userName=Rebecca&userPassword=reb123&userEmail=reb@gmail.com&userPhone=7324324444&userType=org&gender=0"
+# Correct userType
+curl -i localhost:4567/signUp -X post --data "userName=Rebecca&userPassword=reb123&userEmail=reb_user1@gmail.com&userPhone=7324324444&userType=TRUE&gender=0"
+curl -i localhost:4567/signUp -X post --data "userName=Rebecca&userPassword=reb123&userEmail=reb_user2@gmail.com&userPhone=7324324444&userType=FaLse&gender=0"
+
+# Wrong phone
+curl -i localhost:4567/signUp -X post --data "userName=Rebecca&userPassword=reb123&userEmail=reb@gmail.com&userPhone=73243244&userType=0&gender=0"
+curl -i localhost:4567/signUp -X post --data "userName=Rebecca&userPassword=reb123&userEmail=reb@gmail.com&userPhone=blah&userType=0&gender=0"

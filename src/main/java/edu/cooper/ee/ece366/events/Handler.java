@@ -120,11 +120,21 @@ public class Handler {
             UpdateResponse(response, 400, "Username not acceptable");
             return false;
         }
-        // Validate userType - must be boolean true or false
-        //else if (!Pattern.matches("false" || "FALSE || ", request.queryParams("userType")) {
-        //    UpdateResponse(response, 400, "Username not acceptable");
-         //   return false;
-        //}
+        // Validate userType - must be String true or false, case insensitive
+        else if (!Pattern.matches("(?i)false|(?i)true|0", request.queryParams("userType").strip())) {
+            UpdateResponse(response, 400, "userType not acceptable. Enter 'true' for an organization and 'false' for a member.");
+            return false;
+        }
+        // Validate gender - must be String true or false, case insensitive
+        else if (!Pattern.matches("(?i)false|(?i)true|0", request.queryParams("gender").strip())) {
+            UpdateResponse(response, 400, "gender not acceptable. Enter 'true' for a -- and 'false' for --.");
+            return false;
+        }
+        // Validate userPhone
+        else if (!validatePhoneNumber(request.queryParams("userPhone"))) {
+            UpdateResponse(response, 400, "userPhone not acceptable");
+            return false;
+        }
         // If user is already signed up, error code 409
         else if (userSet.containsKey(request.queryParams("userEmail"))) {
             response.status(409);
@@ -136,10 +146,24 @@ public class Handler {
             }
     }
 
-        private void UpdateResponse(Response response, Integer code, String message) {
+    private void UpdateResponse(Response response, Integer code, String message) {
         response.status(code);
         response.body(message);
         System.out.println(message);
+    }
+
+    // Used to validate phone number. Source: https://www.journaldev.com/641/regular-expression-phone-number-validation-in-java
+    private static boolean validatePhoneNumber(String phoneNo) {
+        //validate phone numbers of format "1234567890"
+        if (phoneNo.matches("\\d{10}")) return true;
+            //validating phone number with -, . or spaces
+        else if(phoneNo.matches("\\d{3}[-\\.\\s]\\d{3}[-\\.\\s]\\d{4}")) return true;
+            //validating phone number with extension length from 3 to 5
+        else if(phoneNo.matches("\\d{3}-\\d{3}-\\d{4}\\s(x|(ext))\\d{3,5}")) return true;
+            //validating phone number where area code is in braces ()
+        else if(phoneNo.matches("\\(\\d{3}\\)-\\d{3}-\\d{4}")) return true;
+            //return false if nothing matches the input
+        else return false;
     }
 
     public Optional<User> logIn(Request request) {
