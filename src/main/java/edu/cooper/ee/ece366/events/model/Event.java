@@ -9,27 +9,26 @@ public class Event {
     @Expose private final String orgName;
     @Expose private final LocalDateTime date;
     @Expose private final String eventMessage;
- 
-   public Event(String name, String orgName, LocalDateTime date, String eventMessage) {
-	this.name = name;
-	this.orgName = orgName;
-	this.date = date;
-	this.eventMessage = eventMessage;
-   }
 
-   public String getName(){
-       return name;
-   }
+    public Event(String name, String orgName, LocalDateTime date, String eventMessage) {
+        this.name = name;
+        this.orgName = orgName;
+        this.date = date;
+        this.eventMessage = eventMessage;
+    }
 
-   public String getOrgName(){
-       return orgName;
-   }
-   public LocalDateTime getDate(){
-       return date;
-   }
+    public String getName(){
+        return name;
+    }
 
-   public String getEventMessage(){
-       return eventMessage;
-   }
+    public String getOrgName(){
+        return orgName;
+    }
+    public LocalDateTime getDate(){
+        return date;
+    }
+
+    public String getEventMessage(){
+        return eventMessage;
+    }
 }
-
