@@ -15,7 +15,8 @@ public class Main {
         String username="main";
         String password="software";
         Jdbi jdbi = Jdbi.create(url, username, password);
-        EvantStore es = new EvantMysqlImpl(jdbi);
+        EvantMysqlImpl es = new EvantMysqlImpl(jdbi);
+        es.populateDb();
         Handler handler = new Handler(es);
         JsonTransformer jsonTransformer = new JsonTransformer();
         Spark.post("/signUp", (req, res) -> handler.signUp(req, res).orElse(null),jsonTransformer);

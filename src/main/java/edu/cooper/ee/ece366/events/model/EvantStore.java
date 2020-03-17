@@ -19,7 +19,7 @@ public interface EvantStore {
 
     Event getEvent(String eventName);
     Event createEvent(String eventName, String orgName, LocalDateTime eventDate, String eventMessage);
-    Event joinEvent(String eventName, String userEmail);
+    Event joinEvent(Event e, Organization o);
 
     ArrayList<Event> getMyEvents(String email);
     ArrayList<Event> getUpcomingEvents();
