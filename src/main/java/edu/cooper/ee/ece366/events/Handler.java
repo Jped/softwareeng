@@ -72,7 +72,7 @@ public class Handler {
             return Optional.empty();
         }
         // Ensure userEmail is already signedUp
-        if (!es.checkUser(userEmail)){
+        if (!es.checkMember(userEmail) && !es.checkOrg(userEmail)){
             Handler.UpdateResponse(response, 404, "This userEmail is not registered.");
             return Optional.empty();
         }
@@ -111,7 +111,7 @@ public class Handler {
     public Boolean joinEvent(Request request, Response response) {
         // For now, we assume each event name is unique but in future should allow multiple orgs to have same event
         if (Validate.joinEvent(request,response,es)) {
-            es.joinEvent(es.getEvent(request.queryParams("eventName")), es.getOrg(request.queryParams("userEmail")));
+            es.joinEvent(request.queryParams("eventName"), request.queryParams("orgName"), request.queryParams("userEmail"));
             UpdateResponse(response, 200, "Joined event successfully");
             return true;
         }

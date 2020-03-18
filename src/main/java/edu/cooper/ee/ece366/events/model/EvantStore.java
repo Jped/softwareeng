@@ -12,9 +12,9 @@ public interface EvantStore {
     Organization createOrg(String userName, String userPassword, String userPhone, String userEmail);
     Organization getOrg(String orgEmail);
 
-    Boolean checkUser(String userEmail);
+    Boolean checkMember(String userEmail);
     Boolean checkOrg(String orgEmail);
-    Boolean checkEvent(String eventName);
+    Boolean checkEvent(String eventName, String orgName);
 
 
     Event getEvent(String eventName, String orgName);

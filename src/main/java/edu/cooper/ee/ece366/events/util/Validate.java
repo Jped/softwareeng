@@ -61,7 +61,7 @@ public class Validate {
         }
         // TODO: Validate birthday
         // Check if user is already signed up
-        else if (es.checkUser(request.queryParams("userEmail"))) {
+        else if (es.checkMember(request.queryParams("userEmail")) || es.checkOrg(request.queryParams("orgEmail"))) {
             Handler.UpdateResponse(response, 409, "No new user was signed up because a user already exists with this email address.");
             return false;
         }
@@ -104,8 +104,8 @@ public class Validate {
             return false;
         }
         // If event already exists, check whether this event is registered under the particular org of interest
-        else if (es.checkEvent(request.queryParams("eventName")) &&
-                 es.getEvent(request.queryParams("eventName")).getOrgName().equals(request.queryParams("orgName"))) {
+        else if (es.checkEvent(request.queryParams("eventName"), request.queryParams("orgName")) &&
+                 es.getEvent(request.queryParams("eventName"), request.queryParams("orgName")).getOrgName().equals(request.queryParams("orgName"))) {
             Handler.UpdateResponse(response, 409, "This event already exists for the given organization.");
             return false;
         }
@@ -123,13 +123,13 @@ public class Validate {
             return false;
         }
         // Check if user exists
-        else if (!es.checkUser(request.queryParams("userEmail"))) {
+        else if (!es.checkMember(request.queryParams("userEmail"))) {
             Handler.UpdateResponse(response, 400, "No such user exists");
             return false;
         }
         // Check if event exists
         // For now, we assume each event name is unique but in future should allow multiple orgs to have same event
-        else if (!es.checkEvent(request.queryParams("eventName"))) {
+        else if (!es.checkEvent(request.queryParams("eventName"), request.queryParams("orgName"))) {
             Handler.UpdateResponse(response, 400, "No such event exists");
             return false;
         }

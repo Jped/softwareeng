@@ -3,9 +3,12 @@ package edu.cooper.ee.ece366.events.model;
 import org.jdbi.v3.core.Jdbi;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
-import edu.cooper.ee.ece366.events.model.Member;
+import org.jdbi.v3.core.statement.Query;
 
 public class EvantMysqlImpl implements EvantStore{
 
@@ -18,10 +21,10 @@ public class EvantMysqlImpl implements EvantStore{
     public void populateDb(){
         jdbi.useHandle(
                 handle -> {
-                    handle.execute("create table members (id bigint auto_increment, name varchar(255), password varchar(255), phone varchar(255), email varchar(255), birthday datetime, gender bool, primary key(id));");
-                    handle.execute("create table orgs (id bigint auto_increment, name varchar(255), password varchar(255), phone varchar(255), email varchar(255), primary key(id));");
-                    handle.execute("create table events (id bigint auto_increment, name varchar(255), orgName varchar(255), eventMessage varchar(1024), date datetime, primary key(id));");
-                    handle.execute("create table signUps (id bigint auto_increment, userID bigint, eventID bigint, primary key(id)");
+                    handle.execute("create table if not exists members (id bigint auto_increment, name varchar(255), password varchar(255), phone varchar(255), email varchar(255), birthday datetime, gender bool, primary key(id));");
+                    handle.execute("create table if not exists orgs (id bigint auto_increment, name varchar(255), password varchar(255), phone varchar(255), email varchar(255), primary key(id));");
+                    handle.execute("create table if not exists events (id bigint auto_increment, name varchar(255), orgName varchar(255), eventMessage varchar(1024), date datetime, primary key(id));");
+                    handle.execute("create table if not exists signUps (id bigint auto_increment, userID bigint, eventID bigint, primary key(id));");
                 });
     }
 
@@ -70,24 +73,35 @@ public class EvantMysqlImpl implements EvantStore{
     }
 
     public Boolean checkMember(String memberEmail){
-        return jdbi.withHandle(
+         return jdbi.withHandle(
                 handle ->
-                        handle.createQuery("select sum(if(strcmp(email, :email) == 0), 1, 0) from members")
-                        .bind("email", memberEmail));
+                        handle.createQuery("select id from members where email =:email")
+                        .bind("email", memberEmail)
+                        .mapToBean(Boolean.class)
+                        .one());
     }
     public Boolean checkOrg(String orgEmail){
-        return jdbi.withHandle(
+        Optional<Integer> orgID = jdbi.withHandle(
                 handle ->
-                        handle.createQuery("select sum(if(strcmp(email, :email) == 0), 1, 0) from orgs")
-                                .bind("email", orgEmail));
+                        handle.select("select id from orgs where email = ?", orgEmail)
+                                .mapTo(Integer.class)
+                                .findOne());
+        if (orgID.isEmpty()) {
+            return false;
+        }
+        return true;
     }
 
     public Boolean checkEvent(String eventName, String orgName){
-        return jdbi.withHandle(
+        Optional<Integer> eventID = jdbi.withHandle(
                 handle ->
-                        handle.createQuery("select sum(if(strcmp(name, :name) == 0) and strcmp(orgName, :orgName) == 0, 1, 0) from events")
-                                .bind("name", eventName)
-                                .bind("orgName", orgName));
+                        handle.select("select id from events where name =? and orgName =?", eventName, orgName)
+                                .mapTo(Integer.class)
+                                .findOne());
+        if (eventID.isEmpty()) {
+            return false;
+        }
+        return true;
     }
 
     public Event getEvent(String eventName, String orgName){
@@ -139,10 +153,15 @@ public class EvantMysqlImpl implements EvantStore{
     }
 
     public ArrayList<Event> getUpcomingEvents() {
-        return (ArrayList<Event>) jdbi.withHandle(
+        ArrayList<Event> UpComing = (ArrayList<Event>) jdbi.withHandle(
                 handle ->
-                        handle.createQuery("SELECT FROM events WHERE date >= CURRENT_DATE()")
-                        .mapToBean(Event.class)
-                        .list());
+                        handle.createQuery("SELECT FROM events WHERE date >= FROM_UNIXTIME(:Now)")
+                                .bind("Now", LocalDateTime.now().toEpochSecond(ZoneOffset.ofHours(0)))
+                                .mapToBean(Event.class)
+                                .list());
+        if (UpComing.isEmpty()) {
+            return new ArrayList<Event>();
+        }
+        return UpComing;
     }
 }
