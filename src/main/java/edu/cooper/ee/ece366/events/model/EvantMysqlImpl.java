@@ -48,12 +48,47 @@ public class EvantMysqlImpl implements EvantStore{
                 .one());
     }
 
-    public Organization createOrg(String userName, String userPassword, String userPhone, String userEmail){return null;}
-    public Organization getOrg(String orgEmail){return null;}
 
-    public Boolean checkUser(String userEmail){return null;}
-    public Boolean checkOrg(String orgEmail){return null;}
-    public Boolean checkEvent(String eventName){return null;}
+    public Organization createOrg(String userName, String userPassword, String userPhone, String userEmail){
+        return jdbi.withHandle(
+                handle ->
+                        handle.createQuery("insert into members (name, password, phone, email) values (:name, :password, :phone, :email)")
+                                .bind("name", userName)
+                                .bind("password", userPassword)
+                                .bind("phone", userPhone)
+                                .bind("email", userEmail)
+                                .mapToBean(Organization.class)
+                                .one());
+    }
+    public Organization getOrg(String orgEmail){
+        return jdbi.withHandle(
+                handle ->
+                        handle.createQuery("select from orgs where email = :email")
+                                .bind("email", orgEmail)
+                                .mapToBean(Organization.class)
+                                .one());
+    }
+
+    public Boolean checkMember(String memberEmail){
+        return jdbi.withHandle(
+                handle ->
+                        handle.createQuery("select sum(if(strcmp(email, :email) == 0), 1, 0) from members")
+                        .bind("email", memberEmail));
+    }
+    public Boolean checkOrg(String orgEmail){
+        return jdbi.withHandle(
+                handle ->
+                        handle.createQuery("select sum(if(strcmp(email, :email) == 0), 1, 0) from orgs")
+                                .bind("email", orgEmail));
+    }
+
+    public Boolean checkEvent(String eventName, String orgName){
+        return jdbi.withHandle(
+                handle ->
+                        handle.createQuery("select sum(if(strcmp(name, :name) == 0) and strcmp(orgName, :orgName) == 0, 1, 0) from events")
+                                .bind("name", eventName)
+                                .bind("orgName", orgName));
+    }
 
     public Event getEvent(String eventName, String orgName){
         return jdbi.withHandle(
