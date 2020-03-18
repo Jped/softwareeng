@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.statement.Query;
 
 public class EvantMysqlImpl implements EvantStore{
@@ -73,12 +74,15 @@ public class EvantMysqlImpl implements EvantStore{
     }
 
     public Boolean checkMember(String memberEmail){
-         return jdbi.withHandle(
+         Optional<Boolean> resp = jdbi.withHandle(
                 handle ->
-                        handle.createQuery("select id from members where email =:email")
-                        .bind("email", memberEmail)
-                        .mapToBean(Boolean.class)
-                        .one());
+                        handle.select("select id from members where email = ?", memberEmail)
+                        .mapTo(Boolean.class)
+                        .findOne());
+         if (resp.isEmpty()){
+             return false;
+         }
+         return true;
     }
     public Boolean checkOrg(String orgEmail){
         Optional<Integer> orgID = jdbi.withHandle(
@@ -117,7 +121,7 @@ public class EvantMysqlImpl implements EvantStore{
     public Event createEvent(String eventName, String orgName, LocalDateTime eventDate, String eventMessage){
         return jdbi.withHandle(
                 handle ->
-                        handle.createQuery("INSERT INTO events (name, orgName, eventMessage, date) values (:name, :orgName, :eventMessage, :date)")
+                        handle.createQuery("INSERT INTO events (name, orgName, eventMessage, date) values (:name, :orgName, :eventMessage, :datetest)")
                         .bind("name", eventName)
                         .bind("orgName", orgName)
                         .bind("eventMessage", eventMessage)
@@ -143,25 +147,19 @@ public class EvantMysqlImpl implements EvantStore{
 
     }
 
-    public ArrayList<Event> getMyEvents(String email) {
-        return (ArrayList<Event>) jdbi.withHandle(
+    public ResultIterator<Event> getMyEvents(String email) {
+        return jdbi.withHandle(
                 handle ->
-                        handle.createQuery("SELECT FROM members WHERE email = :email join signUps ON members.id = signUps.userID join events ON signUps.eventID = events.id")
-                        .bind("email", email)
+                        handle.select("SELECT events.name, events.orgName, events.id, events.date, events.eventMessage FROM members join signUps ON members.id = signUps.userID join events ON signUps.eventID = events.id WHERE members.email = ?", email)
                         .mapToBean(Event.class)
-                        .list());
+                        .iterator());
     }
 
-    public ArrayList<Event> getUpcomingEvents() {
-        ArrayList<Event> UpComing = (ArrayList<Event>) jdbi.withHandle(
+    public ResultIterator<Event> getUpcomingEvents() {
+        return jdbi.withHandle(
                 handle ->
-                        handle.createQuery("SELECT FROM events WHERE date >= FROM_UNIXTIME(:Now)")
-                                .bind("Now", LocalDateTime.now().toEpochSecond(ZoneOffset.ofHours(0)))
+                        handle.select("SELECT * FROM events WHERE date >= ?", LocalDateTime.now())
                                 .mapToBean(Event.class)
-                                .list());
-        if (UpComing.isEmpty()) {
-            return new ArrayList<Event>();
-        }
-        return UpComing;
+                                .iterator());
     }
 }

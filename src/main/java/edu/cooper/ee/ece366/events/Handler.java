@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import edu.cooper.ee.ece366.events.util.Validate;
 import org.eclipse.jetty.http.HttpParser;
+import org.jdbi.v3.core.result.ResultIterator;
 import spark.Request;
 import spark.Response;
 
@@ -120,14 +121,14 @@ public class Handler {
         }
     }
 
-    public ArrayList<Event> myEvents(Request request, Response response) {
-        ArrayList<Event> myEvents = es.getMyEvents(request.queryParams("userEmail"));
+    public ResultIterator<Event> myEvents(Request request, Response response) {
+        ResultIterator<Event> myEvents = es.getMyEvents(request.queryParams("userEmail"));
         UpdateResponse(response, 200, String.valueOf(myEvents));
         return myEvents;
     }
 
-    public ArrayList<Event> upcomingEvents(Request request, Response response) {
-        ArrayList<Event> upcomingEvents = es.getUpcomingEvents();
+    public ResultIterator<Event> upcomingEvents(Request request, Response response) {
+        ResultIterator<Event> upcomingEvents = es.getUpcomingEvents();
             return upcomingEvents;
     }
 

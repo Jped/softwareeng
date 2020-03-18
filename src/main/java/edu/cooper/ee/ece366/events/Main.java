@@ -5,6 +5,7 @@ import org.jdbi.v3.core.Jdbi;
 import spark.Spark;
 import edu.cooper.ee.ece366.events.util.JsonTransformer;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -16,8 +17,7 @@ public class Main {
         String password="software";
         Jdbi jdbi = Jdbi.create(url, username, password);
         EvantMysqlImpl es = new EvantMysqlImpl(jdbi);
-
-        es.populateDb();
+        //es.populateDb();
         Handler handler = new Handler(es);
         JsonTransformer jsonTransformer = new JsonTransformer();
         Spark.post("/signUp", (req, res) -> handler.signUp(req, res).orElse(null),jsonTransformer);
