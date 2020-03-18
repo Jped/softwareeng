@@ -17,9 +17,9 @@ public interface EvantStore {
     Boolean checkEvent(String eventName);
 
 
-    Event getEvent(String eventName);
+    Event getEvent(String eventName, String orgName);
     Event createEvent(String eventName, String orgName, LocalDateTime eventDate, String eventMessage);
-    Event joinEvent(Event e, Organization o);
+    Event joinEvent(String eventName, String orgName, String memberEmail);
 
     ArrayList<Event> getMyEvents(String email);
     ArrayList<Event> getUpcomingEvents();

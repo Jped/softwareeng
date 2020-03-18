@@ -16,7 +16,8 @@ public class Main {
         String password="software";
         Jdbi jdbi = Jdbi.create(url, username, password);
         EvantMysqlImpl es = new EvantMysqlImpl(jdbi);
-        es.populateDb();
+        // The db seems to save its columns from previous instances
+        //es.populateDb();
         Handler handler = new Handler(es);
         JsonTransformer jsonTransformer = new JsonTransformer();
         Spark.post("/signUp", (req, res) -> handler.signUp(req, res).orElse(null),jsonTransformer);
