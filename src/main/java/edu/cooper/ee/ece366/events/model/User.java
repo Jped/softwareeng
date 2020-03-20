@@ -9,8 +9,10 @@ public abstract class User {
   private final String password;
   @Expose private final String phone;
   @Expose private final String email;
+  private final long id;
   //private final List organizations;
-  public User(String name, String password, String phone, String email){
+  public User(long id, String name, String password, String phone, String email){
+    this.id = id;
     this.name = name;
     this.password = password;
     this.phone = phone;

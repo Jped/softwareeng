@@ -32,13 +32,14 @@ public class EvantMysqlImpl implements EvantStore{
     public Member createMember(String userName, String userPassword, String userPhone, String userEmail, LocalDateTime userBirthday, Boolean userGender){
         return jdbi.withHandle(
                 handle ->
-                        handle.createQuery("insert into members (name, password, phone, email, birthday, gender) values (:name, :password, :phone, :email, :birthday, :gender)")
+                        handle.createUpdate("insert into members (name, password, phone, email, birthday, gender) values (:name, :password, :phone, :email, :birthday, :gender)")
                         .bind("name", userName)
                         .bind("password", userPassword)
                         .bind("phone", userPhone)
                         .bind("email", userEmail)
                         .bind("birthday", userBirthday)
                         .bind("gender", userGender)
+                        .executeAndReturnGeneratedKeys("id")
                         .mapToBean(Member.class)
                         .one());
     }
