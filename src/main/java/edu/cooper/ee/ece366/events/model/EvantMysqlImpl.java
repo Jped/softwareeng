@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
 import org.jdbi.v3.core.statement.Query;
 
@@ -30,18 +31,19 @@ public class EvantMysqlImpl implements EvantStore{
     }
 
     public Member createMember(String userName, String userPassword, String userPhone, String userEmail, LocalDateTime userBirthday, Boolean userGender){
-        return jdbi.withHandle(
+        Integer id = jdbi.withHandle(
                 handle ->
                         handle.createUpdate("insert into members (name, password, phone, email, birthday, gender) values (:name, :password, :phone, :email, :birthday, :gender)")
-                        .bind("name", userName)
-                        .bind("password", userPassword)
-                        .bind("phone", userPhone)
-                        .bind("email", userEmail)
-                        .bind("birthday", userBirthday)
-                        .bind("gender", userGender)
-                        .executeAndReturnGeneratedKeys("id")
-                        .mapToBean(Member.class)
-                        .one());
+                                .bind("name", userName)
+                                .bind("password", userPassword)
+                                .bind("phone", userPhone)
+                                .bind("email", userEmail)
+                                .bind("birthday", userBirthday)
+                                .bind("gender", userGender)
+                                .executeAndReturnGeneratedKeys("id")
+                                .mapTo(Integer.class)
+                                .one());
+        return new Member(id, userName, userPassword, userPhone, userEmail, userBirthday, userGender);
     }
 
     public Member getMember(String memberEmail){
