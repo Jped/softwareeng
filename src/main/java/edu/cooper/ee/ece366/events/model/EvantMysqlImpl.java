@@ -30,50 +30,68 @@ public class EvantMysqlImpl implements EvantStore{
                 });
     }
 
-    public Member createMember(String userName, String userPassword, String userPhone, String userEmail, LocalDateTime userBirthday, Boolean userGender){
+    public Member createMember(Member member){
         Integer id = jdbi.withHandle(
                 handle ->
                         handle.createUpdate("insert into members (name, password, phone, email, birthday, gender) values (:name, :password, :phone, :email, :birthday, :gender)")
-                                .bind("name", userName)
-                                .bind("password", userPassword)
-                                .bind("phone", userPhone)
-                                .bind("email", userEmail)
-                                .bind("birthday", userBirthday)
-                                .bind("gender", userGender)
+                                .bind("name", member.getName())
+                                .bind("password", member.getPassword())
+                                .bind("phone", member.getPhone())
+                                .bind("email", member.getEmail())
+                                .bind("birthday", member.getBirthday())
+                                .bind("gender", member.getGender())
                                 .executeAndReturnGeneratedKeys("id")
                                 .mapTo(Integer.class)
                                 .one());
-        return new Member(id, userName, userPassword, userPhone, userEmail, userBirthday, userGender);
+        member.setID(id);
+        return member;
     }
 
     public Member getMember(String memberEmail){
-        return jdbi.withHandle(
+        Member member = jdbi.withHandle(
                 handle ->
-                        handle.createQuery("select from members where email = :email")
-                .bind("email", memberEmail)
-                .mapToBean(Member.class)
-                .one());
+//                        handle.createQuery("select id, name, password, phone, email, birthday, gender from members where email = :email")
+//                                .bind("email", memberEmail)
+//                                .mapToBean(Member.class)
+//                                .findOne());
+
+//                        handle.createUpdate("select id, name, password, phone, email, birthday, gender from members where email = :email")
+//                                .bind("email", memberEmail)
+//                                .executeAndReturnGeneratedKeys("id","name","password","phone","email","birthday","gender")
+//                                .mapToBean(Member.class)
+//                                .one());
+                        handle.execute("select id, name, password, phone, email, birthday, gender from members where email = ?",memberEmail);
+
+        return member;
     }
 
 
-    public Organization createOrg(String userName, String userPassword, String userPhone, String userEmail){
-        return jdbi.withHandle(
+    public Organization createOrg(Organization organization){
+        Integer id = jdbi.withHandle(
                 handle ->
-                        handle.createQuery("insert into members (name, password, phone, email) values (:name, :password, :phone, :email)")
-                                .bind("name", userName)
-                                .bind("password", userPassword)
-                                .bind("phone", userPhone)
-                                .bind("email", userEmail)
-                                .mapToBean(Organization.class)
+                        handle.createUpdate("insert into members (name, password, phone, email) values (:name, :password, :phone, :email)")
+                                .bind("name", organization.getName())
+                                .bind("password", organization.getPassword())
+                                .bind("phone", organization.getPhone())
+                                .bind("email", organization.getEmail())
+                                .executeAndReturnGeneratedKeys("id")
+                                .mapTo(Integer.class)
                                 .one());
+        organization.setID(id);
+        return organization;
     }
+
     public Organization getOrg(String orgEmail){
-        return jdbi.withHandle(
+        Optional<Organization> org = jdbi.withHandle(
                 handle ->
-                        handle.createQuery("select from orgs where email = :email")
+                        handle.createQuery("select * from orgs where email = :email")
                                 .bind("email", orgEmail)
                                 .mapToBean(Organization.class)
-                                .one());
+                                .findOne());
+        if (org.isEmpty()) {
+            return new Organization();
+        }
+        return org.get();
     }
 
     public Boolean checkMember(String memberEmail){
@@ -87,6 +105,7 @@ public class EvantMysqlImpl implements EvantStore{
          }
          return true;
     }
+
     public Boolean checkOrg(String orgEmail){
         Optional<Integer> orgID = jdbi.withHandle(
                 handle ->
@@ -114,40 +133,33 @@ public class EvantMysqlImpl implements EvantStore{
     public Event getEvent(String eventName, String orgName){
         return jdbi.withHandle(
                 handle ->
-                        handle.createQuery("SELECT FROM events WHERE name = :eventName AND orgName = :orgName")
+                        handle.createQuery("SELECT * FROM events WHERE name = :eventName AND orgName = :orgName")
                 .bind("eventName", eventName)
                 .bind("orgName", orgName)
                 .mapToBean(Event.class)
                 .one());
     }
 
-    public Event createEvent(String eventName, String orgName, LocalDateTime eventDate, String eventMessage){
-        return jdbi.withHandle(
+    public Event createEvent(Event e){
+        Integer id = jdbi.withHandle(
                 handle ->
-                        handle.createQuery("INSERT INTO events (name, orgName, eventMessage, date) values (:name, :orgName, :eventMessage, :datetest)")
-                        .bind("name", eventName)
-                        .bind("orgName", orgName)
-                        .bind("eventMessage", eventMessage)
-                        .bind("date", eventDate)
-                        .mapToBean(Event.class)
+                        handle.createUpdate("INSERT INTO events (name, orgName, eventMessage, date) values (:name, :orgName, :eventMessage, :date)")
+                        .bind("name", e.getName())
+                        .bind("orgName", e.getOrgName())
+                        .bind("eventMessage", e.getEventMessage())
+                        .bind("date", e.getDate())
+                        .executeAndReturnGeneratedKeys("id")
+                        .mapTo(Integer.class)
                         .one());
+        e.setID(id);
+        return e;
     }
 
-    public Event joinEvent(String eventName, String orgName, String memberEmail){
-        return jdbi.withHandle(
+    public void joinEvent(Member m, Event e){
+        jdbi.withHandle(
                 handle ->
-                        handle.createQuery("INSERT INTO signUps (userID, eventID)" +
-                                        "SELECT m.id, e.id" +
-                                        "FROM members m, events e" +
-                                        "WHERE m.email = :memberEmail" +
-                                        "AND e.name = :eventName" +
-                                        "AND e.orgName = :orgName")
-                        .bind("memberEmail", memberEmail)
-                        .bind("eventName", eventName)
-                        .bind("orgName", orgName)
-                        .mapToBean(Event.class)
-                        .one());
-
+                        handle.execute("INSERT INTO signUps (userID, eventID) values (?, ?)", m.getID(), e.getID()));
+        return;
     }
 
     public ResultIterator<Event> getMyEvents(String email) {

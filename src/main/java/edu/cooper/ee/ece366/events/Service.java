@@ -17,17 +17,31 @@ public class Service {
         User user;
         Boolean isOrg = userType;
         if (isOrg) {
-            user = es.createOrg(userName, BCrypt.hashpw(userPassword, BCrypt.gensalt()), userPhone, userEmail);
+            Organization new_org = new Organization(userName, BCrypt.hashpw(userPassword, BCrypt.gensalt()), userPhone, userEmail);
+            user = es.createOrg(new_org);
         } else {
-            user = es.createMember(userName, BCrypt.hashpw(userPassword, BCrypt.gensalt()), userPhone, userEmail, userBirthday, userGender);
+            Member new_member = new Member(userName, BCrypt.hashpw(userPassword, BCrypt.gensalt()), userPhone, userEmail, userBirthday, userGender);
+            user = es.createMember(new_member);
         }
         return user;
     }
     public User getUser(String userEmail, Boolean userType) {
-        if(userType){
+        if(!userType){
             return es.getMember(userEmail);
         }
         return es.getOrg(userEmail);
+    }
+
+    public Event createEvent(String eventName, String orgName, LocalDateTime eventDate, String eventMessage) {
+        Event e = new Event(eventName, orgName, eventDate, eventMessage);
+        return es.createEvent(e);
+    }
+
+    public void joinEvent(String eventName, String orgName, String userEmail) {
+        Member m = es.getMember(userEmail);
+        Event e = es.getEvent(eventName, orgName);
+        es.joinEvent(m, e);
+        return;
     }
 
     public Boolean verifyPassword(User u, String password){

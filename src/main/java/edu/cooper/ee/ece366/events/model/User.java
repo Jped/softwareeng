@@ -9,7 +9,7 @@ public abstract class User {
   private final String password;
   @Expose private final String phone;
   @Expose private final String email;
-  private final long id;
+  private long id;
   //private final List organizations;
   public User(long id, String name, String password, String phone, String email){
     this.id = id;
@@ -28,6 +28,10 @@ public abstract class User {
   public String getPassword(){
     return password;
   }
+  public String getPhone() { return phone; }
+
+  public void setID(long id) { this.id = id; }
+  public long getID() {return id;}
 
 
 }

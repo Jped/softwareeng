@@ -14,5 +14,13 @@ public class Member extends User {
         this.birthday = birthday;
         this.gender = gender;
     }
+    public Member(String name, String password, String phone, String email, LocalDateTime birthday, Boolean gender){
+        super(-1, name, password, phone, email);
+        this.birthday = birthday;
+        this.gender = gender;
+    }
+
+    public LocalDateTime getBirthday() { return birthday; }
+    public Boolean getGender() { return gender; }
 
 }

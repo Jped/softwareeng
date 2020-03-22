@@ -66,6 +66,8 @@ public class Handler {
 
         String userEmail = request.queryParams("userEmail");
         String userPassword = request.queryParams("userPassword");
+        Boolean userType = getUserType(request);
+        System.out.println(userType);
 
         // Check if parameters to logIn are provided: email and password. This avoids an unnecessary db query.
         if (userEmail == null || userPassword == null) {
@@ -73,11 +75,11 @@ public class Handler {
             return Optional.empty();
         }
         // Ensure userEmail is already signedUp
-        if (!es.checkMember(userEmail) && !es.checkOrg(userEmail)){
+        if ((userType == false && !es.checkMember(userEmail)) || (userType == true && !es.checkOrg(userEmail))) { //Member type but email not in the table or org type but email not in table
             Handler.UpdateResponse(response, 404, "This userEmail is not registered.");
             return Optional.empty();
         }
-        else{
+        else {
             User u = service.getUser(userEmail, getUserType(request));
             Boolean correctPass = service.verifyPassword(u, userPassword);
             if (correctPass){
@@ -95,7 +97,7 @@ public class Handler {
         Event event;
         // TODO: Eventually we want this to be more secure, ie we need an org token to create an event
         if (Validate.createEvent(request,response,es)) {
-            event = es.createEvent(
+            event = service.createEvent(
                     request.queryParams("eventName"),
                     request.queryParams("orgName"),
                     getDate(request.queryParams("eventDate")),
@@ -112,7 +114,7 @@ public class Handler {
     public Boolean joinEvent(Request request, Response response) {
         // For now, we assume each event name is unique but in future should allow multiple orgs to have same event
         if (Validate.joinEvent(request,response,es)) {
-            es.joinEvent(request.queryParams("eventName"), request.queryParams("orgName"), request.queryParams("userEmail"));
+            service.joinEvent(request.queryParams("eventName"), request.queryParams("orgName"), request.queryParams("userEmail"));
             UpdateResponse(response, 200, "Joined event successfully");
             return true;
         }

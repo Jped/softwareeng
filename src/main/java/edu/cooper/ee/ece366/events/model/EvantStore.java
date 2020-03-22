@@ -8,20 +8,20 @@ import java.util.ArrayList;
 public interface EvantStore {
 
 
-    Member createMember(String userName, String userPassword, String userPhone, String userEmail, LocalDateTime userBirthday, Boolean userGender);
+    Member createMember(Member member);
     Member getMember(String memberEmail);
 
-    Organization createOrg(String userName, String userPassword, String userPhone, String userEmail);
+    Organization createOrg(Organization org);
     Organization getOrg(String orgEmail);
 
-    Boolean checkMember(String userEmail);
+    Boolean checkMember(String memberEmail);
     Boolean checkOrg(String orgEmail);
     Boolean checkEvent(String eventName, String orgName);
 
 
     Event getEvent(String eventName, String orgName);
-    Event createEvent(String eventName, String orgName, LocalDateTime eventDate, String eventMessage);
-    Event joinEvent(String eventName, String orgName, String memberEmail);
+    Event createEvent(Event e);
+    void joinEvent(Member m, Event e);
 
     ResultIterator<Event> getMyEvents(String email);
     ResultIterator<Event> getUpcomingEvents();
