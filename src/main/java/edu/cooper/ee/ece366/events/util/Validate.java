@@ -17,7 +17,7 @@ public class Validate {
     public static Boolean signUp(Request request, Response response, EvantStore es) {
         String userEmail = request.queryParams("userEmail");
         String userPassword = request.queryParams("userPassword");
-
+        Boolean userType = Boolean.valueOf(request.queryParams("userType"));
         // Check if minimum parameters to signUp are provided:
         // email, password, userType, userName, userPhone, (gender and userBirthday is optional - both of these only apply to members)
         if (    userEmail == null ||
@@ -61,7 +61,7 @@ public class Validate {
         }
         // TODO: Validate birthday
         // Check if user is already signed up
-        else if (es.checkMember(request.queryParams("userEmail")) || es.checkOrg(request.queryParams("orgEmail"))) {
+        else if ((userType == false && es.checkMember(request.queryParams("userEmail"))) || (userType == true && es.checkOrg(request.queryParams("orgEmail")))) {
             Handler.UpdateResponse(response, 409, "No new user was signed up because a user already exists with this email address.");
             return false;
         }
@@ -84,8 +84,15 @@ public class Validate {
 
 
     public static Boolean createEvent(Request request, Response response, EvantStore es) {
+        User u = request.session().attribute("logged in");
+        if(u == null){
+            Handler.UpdateResponse(response, 404, "Organization is not logged in.");
+            //User u = request.session().attribute("logged in");
+            //System.out.println(u.getName());
+            return false;
+        }
         // Check whether orgEmail is registered
-        if (!es.checkOrg(request.queryParams("orgEmail"))) {
+        if (!u.isOrganization()) {
             Handler.UpdateResponse(response, 404, "This organization email is not registered.");
             return false;
         }
@@ -118,7 +125,7 @@ public class Validate {
 
     public static boolean joinEvent(Request request, Response response, EvantStore es) {
         // Check that user email provided and eventName provided
-        if (request.queryParams("eventName") == null || request.queryParams("userEmail") == null) {
+        if (request.queryParams("eventName") == null || request.queryParams("userEmail") == null || request.queryParams("orgName") == null) {
             Handler.UpdateResponse(response, 400, "Missing field");
             return false;
         }

@@ -83,6 +83,7 @@ public class Handler {
             User u = service.getUser(userEmail, getUserType(request));
             Boolean correctPass = service.verifyPassword(u, userPassword);
             if (correctPass){
+                request.session().attribute("logged in", u);
                 UpdateResponse(response,200,"Log-in successful");
                 return Optional.of(u);
             }
@@ -131,7 +132,8 @@ public class Handler {
 
     public ResultIterator<Event> upcomingEvents(Request request, Response response) {
         ResultIterator<Event> upcomingEvents = es.getUpcomingEvents();
-            return upcomingEvents;
+        UpdateResponse(response, 200, String.valueOf(upcomingEvents));
+        return upcomingEvents;
     }
 
     private Boolean getUserType(Request request) {

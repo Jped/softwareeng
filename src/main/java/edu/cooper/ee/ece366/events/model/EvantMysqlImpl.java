@@ -50,18 +50,9 @@ public class EvantMysqlImpl implements EvantStore{
     public Member getMember(String memberEmail){
         Member member = jdbi.withHandle(
                 handle ->
-//                        handle.createQuery("select id, name, password, phone, email, birthday, gender from members where email = :email")
-//                                .bind("email", memberEmail)
-//                                .mapToBean(Member.class)
-//                                .findOne());
-
-//                        handle.createUpdate("select id, name, password, phone, email, birthday, gender from members where email = :email")
-//                                .bind("email", memberEmail)
-//                                .executeAndReturnGeneratedKeys("id","name","password","phone","email","birthday","gender")
-//                                .mapToBean(Member.class)
-//                                .one());
-                        handle.execute("select id, name, password, phone, email, birthday, gender from members where email = ?",memberEmail);
-
+                        handle.select("select id, name, password, phone, email, birthday, gender from members where email = ?", memberEmail)
+                                .mapToBean(Member.class)
+                                .one());
         return member;
     }
 
@@ -69,7 +60,7 @@ public class EvantMysqlImpl implements EvantStore{
     public Organization createOrg(Organization organization){
         Integer id = jdbi.withHandle(
                 handle ->
-                        handle.createUpdate("insert into members (name, password, phone, email) values (:name, :password, :phone, :email)")
+                        handle.createUpdate("insert into orgs (name, password, phone, email) values (:name, :password, :phone, :email)")
                                 .bind("name", organization.getName())
                                 .bind("password", organization.getPassword())
                                 .bind("phone", organization.getPhone())
@@ -82,16 +73,12 @@ public class EvantMysqlImpl implements EvantStore{
     }
 
     public Organization getOrg(String orgEmail){
-        Optional<Organization> org = jdbi.withHandle(
+        Organization org = jdbi.withHandle(
                 handle ->
-                        handle.createQuery("select * from orgs where email = :email")
-                                .bind("email", orgEmail)
+                        handle.select("select id, name, password, phone, email from orgs where email = ?", orgEmail)
                                 .mapToBean(Organization.class)
-                                .findOne());
-        if (org.isEmpty()) {
-            return new Organization();
-        }
-        return org.get();
+                                .one());
+        return org;
     }
 
     public Boolean checkMember(String memberEmail){
@@ -124,6 +111,7 @@ public class EvantMysqlImpl implements EvantStore{
                         handle.select("select id from events where name =? and orgName =?", eventName, orgName)
                                 .mapTo(Integer.class)
                                 .findOne());
+        System.out.println(eventName + " " + orgName);
         if (eventID.isEmpty()) {
             return false;
         }

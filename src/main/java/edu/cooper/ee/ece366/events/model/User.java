@@ -5,10 +5,10 @@ import com.google.gson.annotations.Expose;
 public abstract class User {
   
   	
-  @Expose private final String name;
-  private final String password;
-  @Expose private final String phone;
-  @Expose private final String email;
+  @Expose private String name;
+  private String password;
+  @Expose private String phone;
+  @Expose private String email;
   private long id;
   //private final List organizations;
   public User(long id, String name, String password, String phone, String email){
@@ -33,5 +33,11 @@ public abstract class User {
   public void setID(long id) { this.id = id; }
   public long getID() {return id;}
 
+  public void setName(String name){this.name = name;}
+  public void setPassword(String password){this.password = password; }
+  public void setPhone(String phone){this.phone = phone;}
+  public void setEmail(String email){this.email = email;}
+
+  public abstract Boolean isOrganization();
 
 }

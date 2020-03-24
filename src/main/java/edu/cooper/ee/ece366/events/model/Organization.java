@@ -11,4 +11,8 @@ public class Organization extends User{
    public Organization() {
       super(-1, null, null, null, null);
    }
+
+   public Boolean isOrganization(){
+      return true;
+   }
 }
