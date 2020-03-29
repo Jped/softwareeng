@@ -112,7 +112,7 @@ public class EvantMysqlImpl implements EvantStore{
                         handle.select("select id from events where name =? and orgName =?", eventName, orgName)
                                 .mapTo(Integer.class)
                                 .findOne());
-        System.out.println(eventName + " " + orgName);
+        //System.out.println(eventName + " " + orgName);
         if (eventID.isEmpty()) {
             return false;
         }

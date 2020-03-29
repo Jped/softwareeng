@@ -7,6 +7,9 @@ import edu.cooper.ee.ece366.events.model.User;
 import spark.Request;
 import spark.Response;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -85,36 +88,30 @@ public class Validate {
 
     public static Boolean createEvent(Request request, Response response, EvantStore es) {
         User u = request.session().attribute("logged in");
-        if(u == null){
+        if (u == null) {
             Handler.UpdateResponse(response, 404, "Organization is not logged in.");
             return false;
         }
         // Check whether orgEmail is registered
-        if (!u.isOrganization()) {
+        else if (!u.isOrganization()) {
             Handler.UpdateResponse(response, 404, "This organization email is not registered.");
             return false;
         }
-        // Check if minimum parameters to createEvent are provided: (
-        // eventName, orgName, eventDate (eventMessage is optional), (don't need to check orgEmail bc if reach here then already found it in userSet)
-        else if (request.queryParams("eventName") == null ||
-                request.queryParams("orgName") == null ||
-                request.queryParams("eventDate") == null) {
+        // Check if minimum parameters to createEvent are provided: eventName, eventDate
+        else if (request.queryParams("eventName") == null || request.queryParams("eventDate") == null) {
             Handler.UpdateResponse(response, 400, "Missing field");
             return false;
         }
-        // Validate provided parameters:
-        // Validate that orgName in db matches the one provided in the request, for the given email address
-        //else if (!es.getOrg(request.queryParams("orgEmail")).getName().equals(request.queryParams("orgName"))) {
-        //    Handler.UpdateResponse(response, 404, "OrgName provided does not match record");
-        //    return false;
-        //}
-        // If event already exists, check whether this event is registered under the particular org of interest
-        //else if (es.checkEvent(request.queryParams("eventName"), request.queryParams("orgName")) &&
-        //         es.getEvent(request.queryParams("eventName"), request.queryParams("orgName")).getOrgName().equals(request.queryParams("orgName"))) {
-        //    Handler.UpdateResponse(response, 409, "This event already exists for the given organization.");
-        //    return false;
-        //}
-        // TODO: Validate eventDate
+        // Check whether event already exists
+        else if (es.checkEvent(request.queryParams("eventName"), u.getName())) {
+            Handler.UpdateResponse(response, 409, "An event with this name already exists for the given organization.");
+            return false;
+        }
+        // Check whether eventDate is supplied in valid format
+        else if (!validateDate(request.queryParams("eventDate"))) {
+            Handler.UpdateResponse(response, 400, "Datetime format is incorrect");
+            return false;
+        }
         else {
             return true;
         }
@@ -156,6 +153,19 @@ public class Validate {
         else if(phoneNo.matches("\\(\\d{3}\\)-\\d{3}-\\d{4}")) return true;
             //return false if nothing matches the input
         else return false;
+    }
+
+    private static boolean validateDate(String datetime) {
+        // Input to be parsed should strictly follow the defined date format below
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:MM:SS");
+        format.setLenient(false);
+
+        try {
+            format.parse(datetime);
+            return true;
+        } catch (ParseException e) {
+            return false;
+        }
     }
 
 

@@ -95,9 +95,22 @@ public class Handler {
         }
     }
 
+    public Optional<User> logOut(Request request, Response response) {
+        User u = request.session().attribute("logged in");
+        // Ensure a user is logged in
+        if (u == null) {
+            UpdateResponse(response,404,"No user logged in");
+            return Optional.empty();
+        }
+
+        // Destroy session
+        request.session().removeAttribute("logged in");
+        UpdateResponse(response, 200, "Log-out successful");
+        return Optional.of(u);
+    }
+
     public Optional<Event> createEvent(Request request, Response response) {
         Event event;
-        // TODO: Eventually we want this to be more secure, ie we need an org token to create an event
         if (Validate.createEvent(request,response,es)) {
             User u = request.session().attribute("logged in");
             event = service.createEvent(
@@ -154,6 +167,7 @@ public class Handler {
         }
         return LocalDateTime.now();
     }
+
 }
 
 
