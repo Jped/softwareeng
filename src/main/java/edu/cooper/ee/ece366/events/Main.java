@@ -21,10 +21,15 @@ public class Main {
         JsonTransformer jsonTransformer = new JsonTransformer();
         Spark.post("/signUp", (req, res) -> handler.signUp(req, res).orElse(null),jsonTransformer);
         Spark.post("/logIn", (req, res) -> handler.logIn(req, res).orElse(null), jsonTransformer);
+        Spark.get("/logOut", (req, res) -> {
+            req.session().removeAttribute("logged in");
+            return "logged out";
+        });
         Spark.post("/createEvent", (req, res) -> handler.createEvent(req, res).orElse(null), jsonTransformer);
         Spark.post("/joinEvent", (req, res) -> handler.joinEvent(req, res), jsonTransformer);
         Spark.get("/myEvents", (req, res) -> handler.myEvents(req, res), jsonTransformer);
         Spark.get("/upcomingEvents", (req, res) -> handler.upcomingEvents(req, res), jsonTransformer);
+
     }
 
 }

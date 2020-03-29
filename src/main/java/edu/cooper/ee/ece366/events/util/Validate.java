@@ -69,7 +69,7 @@ public class Validate {
             // If user is of member type, additional checks:
             if (Pattern.matches("(?i)false|0", request.queryParams("userType").strip())) {
                 // Validate gender - must be String true or false, case insensitive
-                if (!Pattern.matches("(?i)false|(?i)true|0", request.queryParams("gender").strip())) {
+                if (!Pattern.matches("(?i)false|(?i)true|0", request.queryParams("userGender").strip())) {
                     Handler.UpdateResponse(response, 400, "gender not acceptable. Enter 'true' for a -- and 'false' for --.");
                     return false;
                 }
@@ -87,8 +87,6 @@ public class Validate {
         User u = request.session().attribute("logged in");
         if(u == null){
             Handler.UpdateResponse(response, 404, "Organization is not logged in.");
-            //User u = request.session().attribute("logged in");
-            //System.out.println(u.getName());
             return false;
         }
         // Check whether orgEmail is registered
@@ -106,16 +104,16 @@ public class Validate {
         }
         // Validate provided parameters:
         // Validate that orgName in db matches the one provided in the request, for the given email address
-        else if (!es.getOrg(request.queryParams("orgEmail")).getName().equals(request.queryParams("orgName"))) {
-            Handler.UpdateResponse(response, 404, "OrgName provided does not match record");
-            return false;
-        }
+        //else if (!es.getOrg(request.queryParams("orgEmail")).getName().equals(request.queryParams("orgName"))) {
+        //    Handler.UpdateResponse(response, 404, "OrgName provided does not match record");
+        //    return false;
+        //}
         // If event already exists, check whether this event is registered under the particular org of interest
-        else if (es.checkEvent(request.queryParams("eventName"), request.queryParams("orgName")) &&
-                 es.getEvent(request.queryParams("eventName"), request.queryParams("orgName")).getOrgName().equals(request.queryParams("orgName"))) {
-            Handler.UpdateResponse(response, 409, "This event already exists for the given organization.");
-            return false;
-        }
+        //else if (es.checkEvent(request.queryParams("eventName"), request.queryParams("orgName")) &&
+        //         es.getEvent(request.queryParams("eventName"), request.queryParams("orgName")).getOrgName().equals(request.queryParams("orgName"))) {
+        //    Handler.UpdateResponse(response, 409, "This event already exists for the given organization.");
+        //    return false;
+        //}
         // TODO: Validate eventDate
         else {
             return true;

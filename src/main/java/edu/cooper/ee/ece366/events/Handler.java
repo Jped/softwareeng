@@ -7,6 +7,7 @@ import edu.cooper.ee.ece366.events.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -67,7 +68,6 @@ public class Handler {
         String userEmail = request.queryParams("userEmail");
         String userPassword = request.queryParams("userPassword");
         Boolean userType = getUserType(request);
-        System.out.println(userType);
 
         // Check if parameters to logIn are provided: email and password. This avoids an unnecessary db query.
         if (userEmail == null || userPassword == null) {
@@ -82,6 +82,7 @@ public class Handler {
         else {
             User u = service.getUser(userEmail, getUserType(request));
             Boolean correctPass = service.verifyPassword(u, userPassword);
+
             if (correctPass){
                 request.session().attribute("logged in", u);
                 UpdateResponse(response,200,"Log-in successful");
@@ -98,9 +99,10 @@ public class Handler {
         Event event;
         // TODO: Eventually we want this to be more secure, ie we need an org token to create an event
         if (Validate.createEvent(request,response,es)) {
+            User u = request.session().attribute("logged in");
             event = service.createEvent(
                     request.queryParams("eventName"),
-                    request.queryParams("orgName"),
+                    u.getName(),
                     getDate(request.queryParams("eventDate")),
                     request.queryParams("eventMessage"));
 

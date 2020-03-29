@@ -73,12 +73,13 @@ public class EvantMysqlImpl implements EvantStore{
     }
 
     public Organization getOrg(String orgEmail){
-        Organization org = jdbi.withHandle(
+        System.out.println(orgEmail);
+        Optional<Organization> org = jdbi.withHandle(
                 handle ->
                         handle.select("select id, name, password, phone, email from orgs where email = ?", orgEmail)
                                 .mapToBean(Organization.class)
-                                .one());
-        return org;
+                                .findOne());
+        return org.get();
     }
 
     public Boolean checkMember(String memberEmail){
