@@ -120,13 +120,14 @@ public class Validate {
 
     public static boolean joinEvent(Request request, Response response, EvantStore es) {
         // Check that user email provided and eventName provided
-        if (request.queryParams("eventName") == null || request.queryParams("userEmail") == null || request.queryParams("orgName") == null) {
+        User u = request.session().attribute("logged in");
+        if (request.queryParams("eventName") == null  || request.queryParams("orgName") == null) {
             Handler.UpdateResponse(response, 400, "Missing field");
             return false;
         }
         // Check if user exists
-        else if (!es.checkMember(request.queryParams("userEmail"))) {
-            Handler.UpdateResponse(response, 400, "No such user exists");
+        else if (u == null || u.isOrganization()) {
+            Handler.UpdateResponse(response, 400, "User Not Signed In");
             return false;
         }
         // Check if event exists
