@@ -37,8 +37,7 @@ public class Service {
         return es.createEvent(e);
     }
 
-    public void joinEvent(String eventName, String orgName, String userEmail) {
-        Member m = es.getMember(userEmail);
+    public void joinEvent(String eventName, String orgName, Member m) {
         Event e = es.getEvent(eventName, orgName);
         es.joinEvent(m, e);
         return;

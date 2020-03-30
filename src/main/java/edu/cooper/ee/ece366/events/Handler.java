@@ -130,7 +130,8 @@ public class Handler {
     public Boolean joinEvent(Request request, Response response) {
         // For now, we assume each event name is unique but in future should allow multiple orgs to have same event
         if (Validate.joinEvent(request,response,es)) {
-            service.joinEvent(request.queryParams("eventName"), request.queryParams("orgName"), request.queryParams("userEmail"));
+            Member m = request.session().attribute("logged in");
+            service.joinEvent(request.queryParams("eventName"), request.queryParams("orgName"), m);
             UpdateResponse(response, 200, "Joined event successfully");
             return true;
         }
