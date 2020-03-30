@@ -121,7 +121,6 @@ public class Validate {
     public static boolean joinEvent(Request request, Response response, EvantStore es) {
         // Check that user email provided and eventName provided
         User u = request.session().attribute("logged in");
-        System.out.println("user " + u.isOrganization());
         if (request.queryParams("eventName") == null  || request.queryParams("orgName") == null) {
             Handler.UpdateResponse(response, 400, "Missing field");
             return false;
