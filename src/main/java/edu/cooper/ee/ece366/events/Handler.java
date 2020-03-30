@@ -1,21 +1,20 @@
 package edu.cooper.ee.ece366.events;
 
 import com.google.gson.JsonObject;
-import edu.cooper.ee.ece366.events.model.Event;
-import edu.cooper.ee.ece366.events.model.Member;
-import edu.cooper.ee.ece366.events.model.User;
-import edu.cooper.ee.ece366.events.model.Organization;
+import edu.cooper.ee.ece366.events.model.*;
 import edu.cooper.ee.ece366.events.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
 import edu.cooper.ee.ece366.events.util.Validate;
 import org.eclipse.jetty.http.HttpParser;
+import org.jdbi.v3.core.result.ResultIterator;
 import spark.Request;
 import spark.Response;
 
@@ -26,13 +25,14 @@ import spark.Response;
 //      with this information we need to update the res code
 
 public class Handler {
-    HashMap<String, User> userSet = new HashMap<String, User>();
-    HashMap<String, Event> eventSet = new HashMap<String, Event>();
-    HashMap<Event, User> eventUserHashMap = new HashMap<Event, User>();
 
-    Service service = new Service();
 
-    public Handler() {}
+    private Service service;
+    private EvantStore es;
+    public Handler(EvantStore es) {
+        this.es = es;
+        this.service = new Service(es);
+    }
 
     public static void UpdateResponse(Response response, Integer code, String message) {
         response.status(code);
@@ -41,7 +41,7 @@ public class Handler {
     }
 
     public Optional<User> signUp(Request request, Response response) {
-        if (Validate.signUp(request,response,userSet)) {  //Passed in userSet only because of in memory configuration. This should be changed when db integrated.
+        if (Validate.signUp(request,response, es)) {  //Passed in userSet only because of in memory configuration. This should be changed when db integrated.
             User  u = service.createUser(
                     getUserType(request),
                     request.queryParams("userName"),
@@ -50,7 +50,7 @@ public class Handler {
                     request.queryParams("userEmail"),
                     getDate(request.queryParams("userBirthday")),
                     getUserGender(request));
-            userSet.put(request.queryParams("userEmail"), u);
+
 
             UpdateResponse(response,200,String.valueOf(u));
 
@@ -63,9 +63,11 @@ public class Handler {
 
 
     public Optional<User> logIn(Request request, Response response) {
-        // TODO: discussion needs to be had with how we want to differentiate errors here
+        // TODO: need to differentiate between loginTypes
+
         String userEmail = request.queryParams("userEmail");
         String userPassword = request.queryParams("userPassword");
+        Boolean userType = getUserType(request);
 
         // Check if parameters to logIn are provided: email and password. This avoids an unnecessary db query.
         if (userEmail == null || userPassword == null) {
@@ -73,14 +75,16 @@ public class Handler {
             return Optional.empty();
         }
         // Ensure userEmail is already signedUp
-        if (!userSet.containsKey(userEmail)){
+        if ((userType == false && !es.checkMember(userEmail)) || (userType == true && !es.checkOrg(userEmail))) { //Member type but email not in the table or org type but email not in table
             Handler.UpdateResponse(response, 404, "This userEmail is not registered.");
             return Optional.empty();
         }
-        else{
-            User u = userSet.get(userEmail);
+        else {
+            User u = service.getUser(userEmail, getUserType(request));
             Boolean correctPass = service.verifyPassword(u, userPassword);
+
             if (correctPass){
+                request.session().attribute("logged in", u);
                 UpdateResponse(response,200,"Log-in successful");
                 return Optional.of(u);
             }
@@ -91,16 +95,29 @@ public class Handler {
         }
     }
 
+    public Optional<User> logOut(Request request, Response response) {
+        User u = request.session().attribute("logged in");
+        // Ensure a user is logged in
+        if (u == null) {
+            UpdateResponse(response,404,"No user logged in");
+            return Optional.empty();
+        }
+
+        // Destroy session
+        request.session().removeAttribute("logged in");
+        UpdateResponse(response, 200, "Log-out successful");
+        return Optional.of(u);
+    }
+
     public Optional<Event> createEvent(Request request, Response response) {
         Event event;
-        // TODO: Eventually we want this to be more secure, ie we need an org token to create an event
-        if (Validate.createEvent(request,response,userSet,eventSet)) {
+        if (Validate.createEvent(request,response,es)) {
+            User u = request.session().attribute("logged in");
             event = service.createEvent(
                     request.queryParams("eventName"),
-                    request.queryParams("orgName"),
+                    u.getName(),
                     getDate(request.queryParams("eventDate")),
                     request.queryParams("eventMessage"));
-            eventSet.put(request.queryParams("eventName"), event);
 
             UpdateResponse(response,200,String.valueOf(event));
             return Optional.of(event);
@@ -112,8 +129,9 @@ public class Handler {
 
     public Boolean joinEvent(Request request, Response response) {
         // For now, we assume each event name is unique but in future should allow multiple orgs to have same event
-        if (Validate.joinEvent(request,response,userSet,eventSet,eventUserHashMap)) {
-            eventUserHashMap.put(eventSet.get(request.queryParams("eventName")), userSet.get(request.queryParams("userEmail")));
+        if (Validate.joinEvent(request,response,es)) {
+            Member m = request.session().attribute("logged in");
+            service.joinEvent(request.queryParams("eventName"), request.queryParams("orgName"), m);
             UpdateResponse(response, 200, "Joined event successfully");
             return true;
         }
@@ -122,14 +140,16 @@ public class Handler {
         }
     }
 
-    public ArrayList<Event> myEvents(Request request, Response response) {
-        ArrayList<Event> myEvents = service.getMyEvents(eventUserHashMap, request.queryParams("userEmail"));
+    public ResultIterator<Event> myEvents(Request request, Response response) {
+        User u = request.session().attribute("logged in");
+        ResultIterator<Event> myEvents = es.getMyEvents(u.getEmail());
         UpdateResponse(response, 200, String.valueOf(myEvents));
         return myEvents;
     }
 
-    public ArrayList<Event> upcomingEvents(Request request, Response response) {
-        ArrayList<Event> upcomingEvents = service.getUpcomingEvents(eventSet);
+    public ResultIterator<Event> upcomingEvents(Request request, Response response) {
+        ResultIterator<Event> upcomingEvents = es.getUpcomingEvents();
+        UpdateResponse(response, 200, String.valueOf(upcomingEvents));
         return upcomingEvents;
     }
 
@@ -149,6 +169,7 @@ public class Handler {
         }
         return LocalDateTime.now();
     }
+
 }
 
 
