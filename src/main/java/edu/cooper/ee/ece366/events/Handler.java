@@ -140,7 +140,8 @@ public class Handler {
     }
 
     public ResultIterator<Event> myEvents(Request request, Response response) {
-        ResultIterator<Event> myEvents = es.getMyEvents(request.queryParams("userEmail"));
+        User u = request.session().attribute("logged in");
+        ResultIterator<Event> myEvents = es.getMyEvents(u.getEmail());
         UpdateResponse(response, 200, String.valueOf(myEvents));
         return myEvents;
     }
