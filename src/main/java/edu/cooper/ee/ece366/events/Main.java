@@ -4,7 +4,8 @@ import edu.cooper.ee.ece366.events.model.EvantMysqlImpl;
 import org.jdbi.v3.core.Jdbi;
 import spark.Spark;
 import edu.cooper.ee.ece366.events.util.JsonTransformer;
-
+import spark.template.velocity.VelocityTemplateEngine;
+import spark.ModelAndView;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -14,6 +15,7 @@ public class Main {
         String url = "jdbc:mysql://localhost:3306/evant2?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=EST";
         String username="main";
         String password="software";
+        Spark.staticFiles.location("/templates");
         Jdbi jdbi = Jdbi.create(url, username, password);
         EvantMysqlImpl es = new EvantMysqlImpl(jdbi);
         es.populateDb();
@@ -27,6 +29,12 @@ public class Main {
         Spark.get("/myEvents", (req, res) -> handler.myEvents(req, res), jsonTransformer);
         Spark.get("/upcomingEvents", (req, res) -> handler.upcomingEvents(req, res), jsonTransformer);
 
+        Spark.get("/", (req, res) -> {
+            Map<String, Object> model = new HashMap<>();
+            return new VelocityTemplateEngine().render(
+                    new ModelAndView(model, "login.html")
+            );
+            });
     }
 
 }
