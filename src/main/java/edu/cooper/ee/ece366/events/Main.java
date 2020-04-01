@@ -4,6 +4,7 @@ import edu.cooper.ee.ece366.events.model.EvantMysqlImpl;
 import org.jdbi.v3.core.Jdbi;
 import spark.Spark;
 import edu.cooper.ee.ece366.events.util.JsonTransformer;
+import spark.template.handlebars.HandlebarsTemplateEngine;
 import spark.template.velocity.VelocityTemplateEngine;
 import spark.ModelAndView;
 import java.time.LocalDateTime;
@@ -29,12 +30,15 @@ public class Main {
         Spark.get("/myEvents", (req, res) -> handler.myEvents(req, res), jsonTransformer);
         Spark.get("/upcomingEvents", (req, res) -> handler.upcomingEvents(req, res), jsonTransformer);
 
-        Spark.get("/", (req, res) -> {
-            Map<String, Object> model = new HashMap<>();
-            return new VelocityTemplateEngine().render(
-                    new ModelAndView(model, "login.html")
-            );
-            });
+//        Spark.get("/", (req, res) -> {
+//            Map<String, Object> model = new HashMap<>();
+//            return new VelocityTemplateEngine().render(
+//                    new ModelAndView(model, "./resource/templates/login.vm")
+//            );
+
+        Spark.get("/", (request, response) -> {
+            return new ModelAndView(new HashMap(), "login.html");
+        }, new HandlebarsTemplateEngine());
     }
 
 }
