@@ -4,8 +4,6 @@ import edu.cooper.ee.ece366.events.model.EvantMysqlImpl;
 import org.jdbi.v3.core.Jdbi;
 import spark.Spark;
 import edu.cooper.ee.ece366.events.util.JsonTransformer;
-import spark.template.handlebars.HandlebarsTemplateEngine;
-import spark.template.velocity.VelocityTemplateEngine;
 import spark.ModelAndView;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -13,10 +11,13 @@ import java.util.*;
 public class Main {
 
     public static void main(String[] args) {
+        Spark.staticFiles.location("/public");
+
         String url = "jdbc:mysql://localhost:3306/evant2?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=EST";
         String username="main";
         String password="software";
-        Spark.staticFiles.location("/templates");
+
+
         Jdbi jdbi = Jdbi.create(url, username, password);
         EvantMysqlImpl es = new EvantMysqlImpl(jdbi);
         es.populateDb();
@@ -36,9 +37,6 @@ public class Main {
 //                    new ModelAndView(model, "./resource/templates/login.vm")
 //            );
 
-        Spark.get("/", (request, response) -> {
-            return new ModelAndView(new HashMap(), "login.html");
-        }, new HandlebarsTemplateEngine());
     }
 
 }
