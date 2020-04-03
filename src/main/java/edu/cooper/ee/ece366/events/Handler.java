@@ -1,6 +1,8 @@
 package edu.cooper.ee.ece366.events;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import edu.cooper.ee.ece366.events.model.*;
 import edu.cooper.ee.ece366.events.Service;
 
@@ -13,6 +15,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 import edu.cooper.ee.ece366.events.util.Validate;
+import netscape.javascript.JSObject;
 import org.eclipse.jetty.http.HttpParser;
 import org.jdbi.v3.core.result.ResultIterator;
 import spark.Request;
@@ -42,14 +45,15 @@ public class Handler {
 
     public Optional<User> signUp(Request request, Response response) {
         if (Validate.signUp(request,response, es)) {  //Passed in userSet only because of in memory configuration. This should be changed when db integrated.
+            JsonObject reqObj = new Gson().fromJson(request.body(), JsonObject.class);
             User  u = service.createUser(
-                    getUserType(request),
-                    request.queryParams("userName"),
-                    request.queryParams("userPassword"),
-                    request.queryParams("userPhone"),
-                    request.queryParams("userEmail"),
-                    getDate(request.queryParams("userBirthday")),
-                    getUserGender(request));
+                    getUserType(reqObj),
+                    reqObj.get("userName").getAsString(),
+                    reqObj.get("userPassword").getAsString(),
+                    reqObj.get("userPhone").getAsString(),
+                    reqObj.get("userEmail").getAsString(),
+                    getDate(reqObj.get("userBirthday").getAsString()),
+                    getUserGender(reqObj));
 
 
             UpdateResponse(response,200,String.valueOf(u));
@@ -64,10 +68,10 @@ public class Handler {
 
     public Optional<User> logIn(Request request, Response response) {
         // TODO: need to differentiate between loginTypes
-
-        String userEmail = request.queryParams("userEmail");
-        String userPassword = request.queryParams("userPassword");
-        Boolean userType = getUserType(request);
+        JsonObject reqObj = new Gson().fromJson(request.body(), JsonObject.class);
+        String userEmail = reqObj.get("userEmail").getAsString();
+        String userPassword = reqObj.get("userPassword").getAsString();
+        Boolean userType = getUserType(reqObj);
 
         // Check if parameters to logIn are provided: email and password. This avoids an unnecessary db query.
         if (userEmail == null || userPassword == null) {
@@ -80,13 +84,14 @@ public class Handler {
             return Optional.empty();
         }
         else {
-            User u = service.getUser(userEmail, getUserType(request));
+            User u = service.getUser(userEmail, userType);
             Boolean correctPass = service.verifyPassword(u, userPassword);
 
             if (correctPass){
                 request.session().attribute("logged in", u);
+                response.cookie("sessid", request.session().id());
                 UpdateResponse(response,200,"Log-in successful");
-                return Optional.of(u);
+                   return Optional.of(u);
             }
             else{
                 UpdateResponse(response,404,"Log-in failed");
@@ -112,12 +117,13 @@ public class Handler {
     public Optional<Event> createEvent(Request request, Response response) {
         Event event;
         if (Validate.createEvent(request,response,es)) {
+            JsonObject reqObj = new Gson().fromJson(request.body(), JsonObject.class);
             User u = request.session().attribute("logged in");
             event = service.createEvent(
-                    request.queryParams("eventName"),
+                    reqObj.get("eventName").getAsString(),
                     u.getName(),
-                    getDate(request.queryParams("eventDate")),
-                    request.queryParams("eventMessage"));
+                    getDate(reqObj.get("eventDate").getAsString()),
+                    reqObj.get("eventMessage").getAsString());
 
             UpdateResponse(response,200,String.valueOf(event));
             return Optional.of(event);
@@ -130,8 +136,9 @@ public class Handler {
     public Boolean joinEvent(Request request, Response response) {
         // For now, we assume each event name is unique but in future should allow multiple orgs to have same event
         if (Validate.joinEvent(request,response,es)) {
+            JsonObject reqObj = new Gson().fromJson(request.body(), JsonObject.class);
             Member m = request.session().attribute("logged in");
-            service.joinEvent(request.queryParams("eventName"), request.queryParams("orgName"), m);
+            service.joinEvent(reqObj.get("eventName").getAsString(), reqObj.get("orgName").getAsString(), m);
             UpdateResponse(response, 200, "Joined event successfully");
             return true;
         }
@@ -153,12 +160,15 @@ public class Handler {
         return upcomingEvents;
     }
 
-    private Boolean getUserType(Request request) {
-        return Boolean.valueOf(request.queryParams("userType"));
+    private Boolean getUserType(JsonObject reqObj) {
+        if (reqObj.get("userType") != null) {
+            return Boolean.valueOf(reqObj.get("userType").getAsString());
+        }
+        return false;
     }
 
-    private Boolean getUserGender(Request request) {
-        return Boolean.valueOf(request.queryParams("userGender"));
+    private Boolean getUserGender(JsonObject reqObj) {
+        return Boolean.valueOf(reqObj.get("userGender").getAsString());
     }
 
     private LocalDateTime getDate(String date) {

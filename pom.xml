@@ -6,7 +6,6 @@
   <groupId>edu.cooper.ee.ece366</groupId>
   <artifactId>eventApp</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <packaging>pom</packaging>
 
   <properties>
     <maven.compiler.source>1.11</maven.compiler.source>

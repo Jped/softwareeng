@@ -1,4 +1,5 @@
 package edu.cooper.ee.ece366.events;
+import spark.Filter;
 import edu.cooper.ee.ece366.events.model.EvantStore;
 import edu.cooper.ee.ece366.events.model.EvantMysqlImpl;
 import org.jdbi.v3.core.Jdbi;
@@ -12,7 +13,10 @@ public class Main {
 
     public static void main(String[] args) {
         Spark.staticFiles.location("/public");
-
+//        Spark.after((Filter) (request, response) -> {
+//            response.header("Access-Control-Allow-Origin", "*");
+//            response.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+//        });
         String url = "jdbc:mysql://localhost:3306/evant2?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=EST";
         String username="main";
         String password="software";
@@ -23,6 +27,7 @@ public class Main {
         es.populateDb();
         Handler handler = new Handler(es);
         JsonTransformer jsonTransformer = new JsonTransformer();
+
         Spark.post("/signUp", (req, res) -> handler.signUp(req, res).orElse(null),jsonTransformer);
         Spark.post("/logIn", (req, res) -> handler.logIn(req, res).orElse(null), jsonTransformer);
         Spark.get("/logOut", (req, res) -> handler.logOut(req,res).orElse(null), jsonTransformer);
@@ -31,11 +36,26 @@ public class Main {
         Spark.get("/myEvents", (req, res) -> handler.myEvents(req, res), jsonTransformer);
         Spark.get("/upcomingEvents", (req, res) -> handler.upcomingEvents(req, res), jsonTransformer);
 
-//        Spark.get("/", (req, res) -> {
-//            Map<String, Object> model = new HashMap<>();
-//            return new VelocityTemplateEngine().render(
-//                    new ModelAndView(model, "./resource/templates/login.vm")
-//            );
+
+        Spark.options("/*", (req, res) -> {
+            String accessControlRequestHeaders = req.headers("Access-Control-Request-Headers");
+            if (accessControlRequestHeaders != null) {
+                res.header("Access-Control-Allow-Headers", accessControlRequestHeaders);
+            }
+
+            String accessControlRequestMethod = req.headers("Access-Control-Request-Method");
+            if (accessControlRequestMethod != null) {
+                res.header("Access-Control-Allow-Methods", accessControlRequestMethod);
+            }
+
+            return "OK";
+        });
+
+        Spark.before((req, res) -> {
+            res.header("Access-Control-Allow-Origin", "*");
+            res.header("Access-Control-Allow-Headers", "*");
+            res.type("application/json");
+        });
 
     }
 

@@ -13,6 +13,22 @@
 				login
 			</button>
 
-	<script src="./js/login.js"></script> 	
+	<script>
+		function login(){
+			httpRequest = new XMLHttpRequest();
+			httpRequest.open('POST', 'http://localhost:4567/logIn');
+			httpRequest.withCredentials = true;
+			var j = {
+				"userEmail":document.getElementById('userEmail').value,
+				"userPassword":document.getElementById('userPassword').value,
+			};
+			httpRequest.send(JSON.stringify(j));
+			httpRequest.onreadystatechange=(e)=>{
+				console.log(httpRequest.status);
+			};
+			//httpRequest.send('userEmail=' + encodeURIComponent(document.getElementById('userEmail').value), 'userPassword=' + encodeURIComponent(document.getElementById('userPassword').value));
+			console.log(httpRequest.status);
+		}
+	</script>
 	</body>
 </html>
