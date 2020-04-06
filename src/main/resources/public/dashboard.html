@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Evant Dashboard</title>
+
+    <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+
+    <!-- Script to load upcoming events -->
+    <script type=text/javascript src="./js/upcoming_events.js">  </script>
+
+
+</head>
+
+<body onload="getEvents()">
+    <h3> Dashboard </h3>
+    <!--<div id="root"> </div>-->
+
+
+
+
+    <!--
+    <div id="upcoming_events"> </div>
+    ReactDOM.render(
+        <h1>Hello, world!</h1>,
+        document.getElementById('root')
+    );
+
+    <h3> Dashboard </h3>
+    <div id="upcoming_events"> </div>
+    -->
+
+    <!--
+    <script>
+        function myEvents(){
+            httpRequest = new XMLHttpRequest();
+            httpRequest.open('GET', 'http://localhost:4567/myEvents');
+            httpRequest.withCredentials = true;
+            httpRequest.onreadystatechange=(e)=>{
+                console.log(httpRequest.status);
+            };
+        }
+    </script>
+    -->
+
+    <!-- This loads in the React library
+    <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+
+    Load our React component.
+    <script src="./js/upcoming_events.js"></script>
+    -->
+</body>
+</html>

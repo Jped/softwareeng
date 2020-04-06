@@ -13,10 +13,7 @@ public class Main {
 
     public static void main(String[] args) {
         Spark.staticFiles.location("/public");
-//        Spark.after((Filter) (request, response) -> {
-//            response.header("Access-Control-Allow-Origin", "*");
-//            response.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-//        });
+
         String url = "jdbc:mysql://localhost:3306/evant2?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=EST";
         String username="main";
         String password="software";
@@ -33,7 +30,7 @@ public class Main {
         Spark.get("/logOut", (req, res) -> handler.logOut(req,res).orElse(null), jsonTransformer);
         Spark.post("/createEvent", (req, res) -> handler.createEvent(req, res).orElse(null), jsonTransformer);
         Spark.post("/joinEvent", (req, res) -> handler.joinEvent(req, res), jsonTransformer);
-        Spark.get("/myEvents", (req, res) -> handler.myEvents(req, res), jsonTransformer);
+        Spark.get("/myEvents", (req, res) -> handler.myEvents(req, res).orElse(null), jsonTransformer);
         Spark.get("/upcomingEvents", (req, res) -> handler.upcomingEvents(req, res), jsonTransformer);
 
 
