@@ -5,30 +5,12 @@
 		<title> Evant Login </title>
 	</head>
 	<body>
-		<h3> Login </h3>
-			<label> email </label> <input id="userEmail" type="text"> <br>
-			<label> password </label> <input id="userPassword" type="password"> <br>
-			<label> Are you an organization </label> <input id="orgtype" type="checkbox"><br>
-			<button onclick="login()">
-				login
-			</button>
+		<div id="root"></div>
 
-	<script>
-		function login(){
-			httpRequest = new XMLHttpRequest();
-			httpRequest.open('POST', 'http://localhost:4567/logIn');
-			httpRequest.withCredentials = true;
-			var j = {
-				"userEmail":document.getElementById('userEmail').value,
-				"userPassword":document.getElementById('userPassword').value,
-			};
-			httpRequest.send(JSON.stringify(j));
-			httpRequest.onreadystatechange=(e)=>{
-				console.log(httpRequest.status);
-			};
-			//httpRequest.send('userEmail=' + encodeURIComponent(document.getElementById('userEmail').value), 'userPassword=' + encodeURIComponent(document.getElementById('userPassword').value));
-			console.log(httpRequest.status);
-		}
-	</script>
+	<script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+	<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+	<script src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
+
+		<script src="js/login.js" type="text/babel"></script>
 	</body>
 </html>
