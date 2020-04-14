@@ -1,5 +1,7 @@
 package edu.cooper.ee.ece366.events.util;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import edu.cooper.ee.ece366.events.Handler;
 import edu.cooper.ee.ece366.events.model.EvantStore;
 import edu.cooper.ee.ece366.events.model.Event;
@@ -88,6 +90,7 @@ public class Validate {
 
     public static Boolean createEvent(Request request, Response response, EvantStore es) {
         User u = request.session().attribute("logged in");
+        JsonObject reqObj = new Gson().fromJson(request.body(), JsonObject.class);
         if (u == null) {
             Handler.UpdateResponse(response, 404, "Organization is not logged in.");
             return false;
@@ -98,17 +101,17 @@ public class Validate {
             return false;
         }
         // Check if minimum parameters to createEvent are provided: eventName, eventDate
-        else if (request.queryParams("eventName") == null || request.queryParams("eventDate") == null) {
+        else if (reqObj.get("eventName") == null || reqObj.get("eventDate") == null) {
             Handler.UpdateResponse(response, 400, "Missing field");
             return false;
         }
         // Check whether event already exists
-        else if (es.checkEvent(request.queryParams("eventName"), u.getName())) {
+        else if (es.checkEvent(reqObj.get("eventName").getAsString(), u.getName())) {
             Handler.UpdateResponse(response, 409, "An event with this name already exists for the given organization.");
             return false;
         }
         // Check whether eventDate is supplied in valid format
-        else if (!validateDate(request.queryParams("eventDate"))) {
+        else if (!validateDate(reqObj.get("eventDate").getAsString())) {
             Handler.UpdateResponse(response, 400, "Datetime format is incorrect");
             return false;
         }
@@ -158,7 +161,7 @@ public class Validate {
 
     private static boolean validateDate(String datetime) {
         // Input to be parsed should strictly follow the defined date format below
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:MM:SS");
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         format.setLenient(false);
 
         try {

@@ -1,6 +1,7 @@
 package edu.cooper.ee.ece366.events;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import edu.cooper.ee.ece366.events.model.*;
@@ -47,13 +48,14 @@ public class Handler {
     public Optional<User> signUp(Request request, Response response) {
         if (Validate.signUp(request,response, es)) {  //Passed in userSet only because of in memory configuration. This should be changed when db integrated.
             JsonObject reqObj = new Gson().fromJson(request.body(), JsonObject.class);
+            System.out.print(reqObj);
             User  u = service.createUser(
                     getUserType(reqObj),
-                    reqObj.get("userName").getAsString(),
-                    reqObj.get("userPassword").getAsString(),
-                    reqObj.get("userPhone").getAsString(),
-                    reqObj.get("userEmail").getAsString(),
-                    getDate(reqObj.get("userBirthday").getAsString()),
+                    makeString(reqObj.get("userName")),
+                    makeString(reqObj.get("userPassword")),
+                    makeString(reqObj.get("userPhone")),
+                    makeString(reqObj.get("userEmail")),
+                    getDate(makeString(reqObj.get("userBirthday"))),
                     getUserGender(reqObj));
 
 
@@ -89,14 +91,10 @@ public class Handler {
             Boolean correctPass = service.verifyPassword(u, userPassword);
 
             if (correctPass){
-//                JsonObject user = new JsonObject();
-//                user.addProperty("userName", u.getName());
-//                user.addProperty("userId", u.getID());
-//                user.addProperty("userEmail", u.getEmail());
                 request.session().attribute("logged in", u);
                 response.cookie("sessid", request.session().id());
                 UpdateResponse(response,200,"Log-in successful");
-                   return Optional.of(u);
+                return Optional.of(u);
             }
             else{
                 UpdateResponse(response,404,"Log-in failed");
@@ -182,7 +180,7 @@ public class Handler {
     }
 
     private Boolean getUserGender(JsonObject reqObj) {
-        return Boolean.valueOf(reqObj.get("userGender").getAsString());
+        return Boolean.valueOf(makeString(reqObj.get("userGender")));
     }
 
     private LocalDateTime getDate(String date) {
@@ -192,6 +190,12 @@ public class Handler {
             return LocalDateTime.parse(date, formatter);
         }
         return LocalDateTime.now();
+    }
+    private String makeString(JsonElement elem){
+        if (elem != null){
+            return elem.getAsString();
+        }
+        return null;
     }
 
 }
