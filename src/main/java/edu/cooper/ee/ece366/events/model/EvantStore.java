@@ -2,8 +2,7 @@ package edu.cooper.ee.ece366.events.model;
 
 import org.jdbi.v3.core.result.ResultIterator;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.List;
 
 public interface EvantStore {
 
@@ -23,6 +22,6 @@ public interface EvantStore {
     Event createEvent(Event e);
     void joinEvent(Member m, Event e);
 
-    ResultIterator<Event> getMyEvents(String email);
+    List<Event> getMyEvents(String email);
     ResultIterator<Event> getUpcomingEvents();
 }

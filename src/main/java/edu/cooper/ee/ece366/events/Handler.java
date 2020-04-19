@@ -3,22 +3,14 @@ package edu.cooper.ee.ece366.events;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import edu.cooper.ee.ece366.events.model.*;
-import edu.cooper.ee.ece366.events.Service;
-
-import java.security.PublicKey;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.regex.Pattern;
-
+import java.util.*;
+import edu.cooper.ee.ece366.events.Service;
+import java.security.PublicKey;
+import java.time.LocalDate;
 import edu.cooper.ee.ece366.events.util.Validate;
-import netscape.javascript.JSObject;
-import org.eclipse.jetty.http.HttpParser;
 import org.jdbi.v3.core.result.ResultIterator;
 import spark.Request;
 import spark.Response;
@@ -41,7 +33,12 @@ public class Handler {
 
     public static void UpdateResponse(Response response, Integer code, String message) {
         response.status(code);
-        response.body(message);
+        if (code != 200){
+            response.header("error", message);
+        }
+        else{
+            response.body(message);
+        }
         System.out.println(message);
     }
 
@@ -134,7 +131,7 @@ public class Handler {
             event = service.createEvent(
                     reqObj.get("eventName").getAsString(),
                     u.getName(),
-                    getDate(reqObj.get("eventDate").getAsString()),
+                    getDateTime(reqObj.get("eventDate").getAsString()),
                     reqObj.get("eventMessage").getAsString());
 
             UpdateResponse(response,200,String.valueOf(event));
@@ -159,11 +156,17 @@ public class Handler {
         }
     }
 
-    public ResultIterator<Event> myEvents(Request request, Response response) {
+    public Optional<List<Event>> myEvents(Request request, Response response) {
         User u = request.session().attribute("logged in");
-        ResultIterator<Event> myEvents = es.getMyEvents(u.getEmail());
-        UpdateResponse(response, 200, String.valueOf(myEvents));
-        return myEvents;
+        // Ensure a user is logged in
+        if (u == null) {
+            UpdateResponse(response,404,"No user logged in");
+            return Optional.empty();
+        }
+        List<Event> myEvents = es.getMyEvents(u.getEmail());
+        System.out.println(myEvents.get(0).getDate());
+        UpdateResponse(response, 200, myEvents.toString());
+        return Optional.of(myEvents);
     }
 
     public ResultIterator<Event> upcomingEvents(Request request, Response response) {
@@ -183,7 +186,16 @@ public class Handler {
         return Boolean.valueOf(makeString(reqObj.get("userGender")));
     }
 
-    private LocalDateTime getDate(String date) {
+    private LocalDate getDate(String date) {
+        // TODO: verify that the date is in kosher format provided by the user
+        if(date != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            return LocalDate.parse(date, formatter);
+        }
+        return LocalDate.now();
+    }
+
+    private LocalDateTime getDateTime(String date) {
         // TODO: verify that the date is in kosher format provided by the user
         if(date != null) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

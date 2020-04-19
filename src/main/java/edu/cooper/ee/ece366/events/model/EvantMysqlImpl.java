@@ -3,14 +3,10 @@ package edu.cooper.ee.ece366.events.model;
 import org.jdbi.v3.core.Jdbi;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
-import org.jdbi.v3.core.statement.Query;
 
 public class EvantMysqlImpl implements EvantStore{
 
@@ -151,13 +147,14 @@ public class EvantMysqlImpl implements EvantStore{
         return;
     }
 
-    public ResultIterator<Event> getMyEvents(String email) {
+    public List<Event> getMyEvents(String email) {
         return jdbi.withHandle(
                 handle ->
                         handle.select("SELECT events.name, events.orgName, events.id, events.date, events.eventMessage FROM members join signUps ON members.id = signUps.userID join events ON signUps.eventID = events.id WHERE members.email = ?", email)
                         .mapToBean(Event.class)
-                        .iterator());
+                        .list());
     }
+
 
     public ResultIterator<Event> getUpcomingEvents() {
         return jdbi.withHandle(

@@ -20,16 +20,24 @@ public class Validate {
 
     //Passed in userSet only because of in memory configuration. This should be changed when db integrated.
     public static Boolean signUp(Request request, Response response, EvantStore es) {
-        String userEmail = request.queryParams("userEmail");
-        String userPassword = request.queryParams("userPassword");
-        Boolean userType = Boolean.valueOf(request.queryParams("userType"));
+        JsonObject reqObj = new Gson().fromJson(request.body(), JsonObject.class);
+        String userName = reqObj.get("userName").getAsString();
+        String userEmail = reqObj.get("userEmail").getAsString();
+        String userPhone = reqObj.get("userPhone").getAsString();
+        String userGender = reqObj.get("userGender").getAsString();
+        String userPassword = reqObj.get("userPassword").getAsString();
+        Boolean userType = false;
+        if (reqObj.get("userType") != null) {
+            userType = Boolean.valueOf(reqObj.get("userType").getAsString());
+        }
+
         // Check if minimum parameters to signUp are provided:
         // email, password, userType, userName, userPhone, (gender and userBirthday is optional - both of these only apply to members)
         if (    userEmail == null ||
                 userPassword == null ||
-                request.queryParams("userName") == null ||
-                request.queryParams("userType") == null ||
-                request.queryParams("userPhone") == null) {
+                userType == null ||
+                userName == null ||
+                userPhone == null) {
             Handler.UpdateResponse(response, 400, "Missing field");
             return false;
         }
@@ -43,38 +51,38 @@ public class Validate {
         // Check if password is between 6 and 100 alphanumeric characters and ensure not the same userName, userEmail, userPhone
         else if (!Pattern.matches("[A-Z,a-z,0-9]{6,}", userPassword) ||
                 userPassword.equals(userEmail) ||
-                userPassword.equals(request.queryParams("userName")) ||
-                userPassword.equals(request.queryParams("userPhone"))
+                userPassword.equals(userName) ||
+                userPassword.equals(userPhone)
         ) {
             Handler.UpdateResponse(response, 400, "Password not acceptable");
             return false;
         }
         // Validate userName
-        else if (!Pattern.matches("[A-Za-z0-9_\\.]+", request.queryParams("userName"))) {
+        else if (!Pattern.matches("[A-Za-z0-9_\\.]+", userName)) {
             Handler.UpdateResponse(response, 400, "Username not acceptable");
             return false;
         }
         // Validate userType - must be String true or false, case insensitive
-        else if (!Pattern.matches("(?i)false|(?i)true|0", request.queryParams("userType").strip())) {
+        else if (!Pattern.matches("(?i)false|(?i)true|0", userType.toString())) {
             Handler.UpdateResponse(response, 400, "userType not acceptable. Enter 'true' for an organization and 'false' for a member.");
             return false;
         }
         // Validate userPhone
-        else if (!validatePhoneNumber(request.queryParams("userPhone"))) {
+        else if (!validatePhoneNumber(userPhone)) {
             Handler.UpdateResponse(response, 400, "userPhone not acceptable");
             return false;
         }
         // TODO: Validate birthday
         // Check if user is already signed up
-        else if ((userType == false && es.checkMember(request.queryParams("userEmail"))) || (userType == true && es.checkOrg(request.queryParams("orgEmail")))) {
+        else if ((userType == false && es.checkMember(userEmail)) || (userType == true && es.checkOrg(userEmail))) {
             Handler.UpdateResponse(response, 409, "No new user was signed up because a user already exists with this email address.");
             return false;
         }
         else {
             // If user is of member type, additional checks:
-            if (Pattern.matches("(?i)false|0", request.queryParams("userType").strip())) {
+            if (Pattern.matches("(?i)false|0", userType.toString())) {
                 // Validate gender - must be String true or false, case insensitive
-                if (!Pattern.matches("(?i)false|(?i)true|0", request.queryParams("userGender").strip())) {
+                if (!Pattern.matches("(?i)false|(?i)true|0", userGender)) {
                     Handler.UpdateResponse(response, 400, "gender not acceptable. Enter 'true' for a -- and 'false' for --.");
                     return false;
                 }
