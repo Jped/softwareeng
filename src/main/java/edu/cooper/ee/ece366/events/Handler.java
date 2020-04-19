@@ -2,27 +2,16 @@ package edu.cooper.ee.ece366.events;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonStreamParser;
 import edu.cooper.ee.ece366.events.model.*;
-import edu.cooper.ee.ece366.events.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.regex.Pattern;
+import java.util.*;
 
 import edu.cooper.ee.ece366.events.util.Validate;
-import netscape.javascript.JSObject;
-import org.eclipse.jetty.http.HttpParser;
 import org.jdbi.v3.core.result.ResultIterator;
 import spark.Request;
 import spark.Response;
-
-import javax.swing.text.html.Option;
 
 
 // TODO ERROR: there are two types of things we need to check
@@ -150,16 +139,15 @@ public class Handler {
         }
     }
 
-    public Optional<ResultIterator<Event>> myEvents(Request request, Response response) {
+    public Optional<List<Event>> myEvents(Request request, Response response) {
         User u = request.session().attribute("logged in");
         // Ensure a user is logged in
         if (u == null) {
             UpdateResponse(response,404,"No user logged in");
             return Optional.empty();
         }
-        ResultIterator<Event> myEvents = es.getMyEvents(u.getEmail());
-        Gson g = new Gson();
-        //System.out.println(g.toJson(myEvents));
+        List<Event> myEvents = es.getMyEvents(u.getEmail());
+        System.out.println(myEvents.get(0).getDate());
         UpdateResponse(response, 200, myEvents.toString());
         return Optional.of(myEvents);
     }

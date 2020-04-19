@@ -37,5 +37,8 @@
     <orderEntry type="library" name="Maven: org.checkerframework:checker-qual:2.10.0" level="project" />
     <orderEntry type="library" name="Maven: mysql:mysql-connector-java:8.0.19" level="project" />
     <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.6.1" level="project" />
+    <orderEntry type="library" name="react.development" level="application" />
+    <orderEntry type="library" name="react-dom.development" level="application" />
+    <orderEntry type="library" name="babel" level="application" />
   </component>
 </module>

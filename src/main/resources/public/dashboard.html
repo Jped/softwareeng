@@ -8,21 +8,21 @@
     <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-
     <!-- Script to load upcoming events -->
-    <script type=text/javascript src="./js/upcoming_events.js">  </script>
+    <script type=text/babel src="./js/upcoming_events.js">  </script>
 
 
 </head>
 
-<body onload="getEvents()">
+<body>
     <h3> Dashboard </h3>
-    <!--<div id="root"> </div>-->
+    <div id="root"> </div>
 
 
 
 
     <!--
+    onload="getEvents_fromAPI()"
     <div id="upcoming_events"> </div>
     ReactDOM.render(
         <h1>Hello, world!</h1>,
