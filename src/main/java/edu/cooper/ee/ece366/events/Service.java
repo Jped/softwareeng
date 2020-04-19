@@ -16,6 +16,7 @@ public class Service {
 
     public User createUser(Boolean userType, String userName, String userPassword, String userPhone, String userEmail, LocalDate userBirthday, Boolean userGender) {
         User user;
+        System.out.println("user type " + userType);
         Boolean isOrg = userType;
         if (isOrg) {
             Organization new_org = new Organization(userName, BCrypt.hashpw(userPassword, BCrypt.gensalt()), userPhone, userEmail);
