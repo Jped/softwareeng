@@ -109,32 +109,39 @@ class GuestGreeting extends React.Component{
     }
     render() {
         return (
-            <div>
-                <h3> Login </h3>
-                <p style={{color:"red"}} hidden={!this.state.error}>Error with logging in please try again</p>
-                <label> email </label>
-                <input
-                    id="userEmail"
-                    type="text"
-                    name="email"
-                    value={this.state.email}
-                    onChange={this.handleInputChange} /> <br/>
-                <label> password </label>
-                <input
-                    id="userPassword"
-                    type="password"
-                    name="password"
-                    value={this.state.password}
-                    onChange={this.handleInputChange} /> <br/>
-                <label> Are you an organization < /label>
-                    <input
-                        id="orgtype"
-                        type="checkbox"
-                        name="isOrg"
-                        checked={this.state.isOrg}
-                        onChange={this.handleInputChange} /><br/>
+            <div className="wrap-login100">
+                <div className="login100-more" style={{backgroundDomage:"url('img/member.jpg')"}}>
+                </div>
+                <div className="login100-form validate-form">
+					<span className="login100-form-title p-b-43">
+						Login to continue
+					</span>
+                    <p style={{color:"red"}} hidden={!this.state.error}>Error with logging in please try again</p>
+                    <div className="wrap-input100">
+                        <input className="input100" id="userEmail" value={this.state.email} onChange={this.handleInputChange} type="text" name="email" />
+                        <span className="focus-input100"></span>
+                        <span className="label-input100">Email</span>
+                    </div>
 
-                    <button disabled={!(this.state.password && this.state.email)} onClick={this.logIn}> login </button>
+
+                    <div className="wrap-input100 validate-input">
+                        <input className="input100" type="password" name="password" id="userPassword" value={this.state.password} onChange={this.handleInputChange} />
+                            <span className="focus-input100"></span>
+                            <span className="label-input100">Password</span>
+                    </div>
+                    <label> Are you an organization < /label>
+                        <input
+                            id="orgtype"
+                            type="checkbox"
+                            name="isOrg"
+                            checked={this.state.isOrg}
+                            onChange={this.handleInputChange} /><br/>
+                    <div className="container-login100-form-btn">
+                        <button disabled={!(this.state.password && this.state.email)} onClick={this.logIn} className="login100-form-btn">
+                            Login
+                        </button>
+                    </div>
+                </div>
             </div>
     )
     }
