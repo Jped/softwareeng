@@ -29,7 +29,6 @@ public class Main {
         es.populateDb();
         Handler handler = new Handler(es);
         JsonTransformer jsonTransformer = new JsonTransformer();
-        User u = new Organization(1, "test", "password","7323333333", "r");
         Spark.post("/signUp", (req, res) -> handler.signUp(req, res).orElse(null),jsonTransformer);
         Spark.post("/logIn", (req, res) -> handler.logIn(req, res).orElse(null), jsonTransformer);
         Spark.get("/logOut", (req, res) -> handler.logOut(req,res).orElse(null), jsonTransformer);
