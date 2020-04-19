@@ -1,4 +1,5 @@
 package edu.cooper.ee.ece366.events;
+import edu.cooper.ee.ece366.events.model.Organization;
 import spark.Filter;
 import edu.cooper.ee.ece366.events.model.EvantStore;
 import edu.cooper.ee.ece366.events.model.EvantMysqlImpl;
@@ -8,6 +9,7 @@ import edu.cooper.ee.ece366.events.util.JsonTransformer;
 import spark.ModelAndView;
 import java.time.LocalDateTime;
 import java.util.*;
+import edu.cooper.ee.ece366.events.model.User;
 
 public class Main {
 
@@ -27,7 +29,6 @@ public class Main {
         es.populateDb();
         Handler handler = new Handler(es);
         JsonTransformer jsonTransformer = new JsonTransformer();
-
         Spark.post("/signUp", (req, res) -> handler.signUp(req, res).orElse(null),jsonTransformer);
         Spark.post("/logIn", (req, res) -> handler.logIn(req, res).orElse(null), jsonTransformer);
         Spark.post("/isValidUser", (req, res) -> handler.isValidUser(req,res).orElse(null), jsonTransformer);

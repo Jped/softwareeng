@@ -5,8 +5,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import edu.cooper.ee.ece366.events.model.*;
 import edu.cooper.ee.ece366.events.Service;
-
 import java.security.PublicKey;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.regex.Pattern;
-
 import edu.cooper.ee.ece366.events.util.Validate;
 import netscape.javascript.JSObject;
 import org.eclipse.jetty.http.HttpParser;
@@ -40,7 +39,12 @@ public class Handler {
 
     public static void UpdateResponse(Response response, Integer code, String message) {
         response.status(code);
-        response.body(message);
+        if (code != 200){
+            response.header("error", message);
+        }
+        else{
+            response.body(message);
+        }
         System.out.println(message);
     }
 
@@ -136,7 +140,7 @@ public class Handler {
             event = service.createEvent(
                     reqObj.get("eventName").getAsString(),
                     u.getName(),
-                    getDate(reqObj.get("eventDate").getAsString()),
+                    getDateTime(reqObj.get("eventDate").getAsString()),
                     reqObj.get("eventMessage").getAsString());
 
             UpdateResponse(response,200,String.valueOf(event));
@@ -185,7 +189,16 @@ public class Handler {
         return Boolean.valueOf(reqObj.get("userGender").getAsString());
     }
 
-    private LocalDateTime getDate(String date) {
+    private LocalDate getDate(String date) {
+        // TODO: verify that the date is in kosher format provided by the user
+        if(date != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            return LocalDate.parse(date, formatter);
+        }
+        return LocalDate.now();
+    }
+
+    private LocalDateTime getDateTime(String date) {
         // TODO: verify that the date is in kosher format provided by the user
         if(date != null) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
