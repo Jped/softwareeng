@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import edu.cooper.ee.ece366.events.model.*;
 import edu.cooper.ee.ece366.events.Service;
-
+import java.security.PublicKey;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.regex.Pattern;
-
 import edu.cooper.ee.ece366.events.util.Validate;
 import netscape.javascript.JSObject;
 import org.eclipse.jetty.http.HttpParser;
@@ -94,6 +93,10 @@ public class Handler {
             Boolean correctPass = service.verifyPassword(u, userPassword);
 
             if (correctPass){
+//                JsonObject user = new JsonObject();
+//                user.addProperty("userName", u.getName());
+//                user.addProperty("userId", u.getID());
+//                user.addProperty("userEmail", u.getEmail());
                 request.session().attribute("logged in", u);
                 response.cookie("sessid", request.session().id());
                 UpdateResponse(response,200,"Log-in successful");
@@ -105,7 +108,16 @@ public class Handler {
             }
         }
     }
-
+    public Optional<User> isValidUser(Request request, Response response){
+        JsonObject reqObj = new Gson().fromJson(request.body(), JsonObject.class);
+        if (request.session().attribute("logged in") == null || !request.session().id().equals(reqObj.get("userSesh").getAsString())){
+            UpdateResponse(response, 404, "Invalid user");
+            request.session().removeAttribute("logged in");
+            request.cookies().clear();
+            return Optional.empty();
+        }
+        return Optional.of(request.session().attribute("logged in"));
+    }
     public Optional<User> logOut(Request request, Response response) {
         User u = request.session().attribute("logged in");
         // Ensure a user is logged in
