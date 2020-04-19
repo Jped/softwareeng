@@ -10,19 +10,6 @@ function apiCall(endPoint, method, load, currThis, callback){
     };
 }
 
-class UserGreeting extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-    render() {
-        return (
-            <div>
-                <h1>Hi {this.props.name}! You are signed up.</h1>
-            </div>
-        );
-    }
-}
-
 
 class GuestGreeting extends React.Component {
 
@@ -34,7 +21,7 @@ class GuestGreeting extends React.Component {
             password: "",
             phone: "",
             birthday: "",
-            gender: "",
+            gender: "male",
             isOrg: false,
             nameError:false,
             emailError:false,
@@ -48,7 +35,7 @@ class GuestGreeting extends React.Component {
 
     handleInputChange(e) {
         const target = e.target;
-        const value = target.name === 'isOrg' ? target.checked : target.value;
+        var value = target.name === 'isOrg' ? target.checked : target.value;
         const name = target.name;
         this.setState({
             [name]: value
@@ -86,15 +73,16 @@ class GuestGreeting extends React.Component {
                }
             }
             else {
-                currThis.props.onChange("user", JSON.parse(body).name);
-                currThis.props.onChange("isSignedUp", true);
-                currThis.setState({error: false});
-                currThis.setState({emailError:false})
-                currThis.setState({passwordError:false})
-                currThis.setState({nameError:false})
-                currThis.setState({phoneError:false})
-                currThis.setState({userError:false})
+                window.location.href = "login.html";
             }
+                // currThis.props.onChange("user", JSON.parse(body).name);
+                // currThis.props.onChange("isSignedUp", true);
+                // currThis.setState({error: false});
+                // currThis.setState({emailError:false})
+                // currThis.setState({passwordError:false})
+                // currThis.setState({nameError:false})
+                // currThis.setState({phoneError:false})
+                // currThis.setState({userError:false})
         });
     }
 
@@ -145,10 +133,10 @@ class GuestGreeting extends React.Component {
             />
             <br hidden={this.state.isOrg}/>
             <label hidden={this.state.isOrg}> gender </label>
-            <select id="userGender" name="gender" hidden={this.state.isOrg} value={this.state.gender} onChange={this.handleInputChange}>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
+            <select value={this.state.gender} id="userGender" name="gender" hidden={this.state.isOrg} onChange={this.handleInputChange}>
+                    <option value="true">Male</option>
+                    <option value="false">Female</option>
+                    <option value="true">Other</option>
 
             </select>
             <br hidden={this.state.isOrg}/>
@@ -193,9 +181,6 @@ class Signup extends React.Component {
     }
 
     render() {
-        if(this.state.isSignedUp) {
-            return <UserGreeting name={this.state.user} onChange={this.handleChange}/>;
-        }
         return <GuestGreeting onChange={this.handleChange}/>;
     }
 
@@ -205,4 +190,5 @@ ReactDOM.render(
     <Signup />,
     document.getElementById('root')
 );
+
 
