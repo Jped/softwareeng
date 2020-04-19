@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<title> Evant Login </title>
+	</head>
+	<body>
+		<h3> Login </h3>
+			<label> email </label> <input id="userEmail" type="text"> <br>
+			<label> password </label> <input id="userPassword" type="password"> <br>
+			<label> Are you an organization </label> <input id="orgtype" type="checkbox"><br>
+			<button onclick="login()">
+				login
+			</button>
+
+	<script>
+		function login(){
+			httpRequest = new XMLHttpRequest();
+			httpRequest.open('POST', 'http://localhost:4567/logIn');
+			httpRequest.withCredentials = true;
+			var j = {
+				"userEmail":document.getElementById('userEmail').value,
+				"userPassword":document.getElementById('userPassword').value,
+			};
+			httpRequest.send(JSON.stringify(j));
+			httpRequest.onreadystatechange=(e)=>{
+				console.log(httpRequest.status);
+			};
+			console.log(httpRequest.status);
+		}
+	</script>
+	</body>
+</html>
