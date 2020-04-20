@@ -39,13 +39,11 @@ public class Handler {
         else{
             response.body(message);
         }
-        System.out.println(message);
     }
 
     public Optional<User> signUp(Request request, Response response) {
         if (Validate.signUp(request,response, es)) {  //Passed in userSet only because of in memory configuration. This should be changed when db integrated.
             JsonObject reqObj = new Gson().fromJson(request.body(), JsonObject.class);
-            System.out.print(reqObj);
             User  u = service.createUser(
                     getUserType(reqObj),
                     makeString(reqObj.get("userName")),
@@ -163,16 +161,21 @@ public class Handler {
             UpdateResponse(response,404,"No user logged in");
             return Optional.empty();
         }
-        List<Event> myEvents = es.getMyEvents(u.getEmail());
-        System.out.println(myEvents.get(0).getDate());
+        // Differentiate between org and member
+        List<Event> myEvents;
+        if(u instanceof Member) {
+            myEvents = es.getMyEvents(u.getEmail());
+        }else{
+            myEvents = es.getOrgEvents(u.getName());
+        }
         UpdateResponse(response, 200, myEvents.toString());
         return Optional.of(myEvents);
     }
 
-    public ResultIterator<Event> upcomingEvents(Request request, Response response) {
-        ResultIterator<Event> upcomingEvents = es.getUpcomingEvents();
-        UpdateResponse(response, 200, String.valueOf(upcomingEvents));
-        return upcomingEvents;
+    public Optional<List<Event>> upcomingEvents(Request request, Response response) {
+        List<Event> upcomingEvents = es.getUpcomingEvents();
+        UpdateResponse(response, 200, upcomingEvents.toString());
+        return Optional.of(upcomingEvents);
     }
 
     private Boolean getUserType(JsonObject reqObj) {

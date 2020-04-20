@@ -69,7 +69,6 @@ public class EvantMysqlImpl implements EvantStore{
     }
 
     public Organization getOrg(String orgEmail){
-        System.out.println(orgEmail);
         Optional<Organization> org = jdbi.withHandle(
                 handle ->
                         handle.select("select id, name, password, phone, email from orgs where email = ?", orgEmail)
@@ -105,10 +104,9 @@ public class EvantMysqlImpl implements EvantStore{
     public Boolean checkEvent(String eventName, String orgName){
         Optional<Integer> eventID = jdbi.withHandle(
                 handle ->
-                        handle.select("select id from events where name =? and orgName =?", eventName, orgName)
+                        handle.select("select id from events where name=? and orgName=?", eventName.substring(1,eventName.length()-1), orgName.substring(1,orgName.length()-1))
                                 .mapTo(Integer.class)
                                 .findOne());
-        //System.out.println(eventName + " " + orgName);
         if (eventID.isEmpty()) {
             return false;
         }
@@ -154,13 +152,19 @@ public class EvantMysqlImpl implements EvantStore{
                         .mapToBean(Event.class)
                         .list());
     }
+    public List<Event> getOrgEvents(String orgName) {
+        return jdbi.withHandle(
+                handle ->
+                        handle.select("SELECT events.name, events.orgName, events.id, events.date, events.eventMessage FROM events where orgName=?", orgName)
+                                .mapToBean(Event.class)
+                                .list());
+    }
 
-
-    public ResultIterator<Event> getUpcomingEvents() {
+    public List<Event> getUpcomingEvents() {
         return jdbi.withHandle(
                 handle ->
                         handle.select("SELECT * FROM events WHERE date >= ?", LocalDateTime.now())
                                 .mapToBean(Event.class)
-                                .iterator());
+                                .list());
     }
 }

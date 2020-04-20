@@ -131,8 +131,11 @@ public class Validate {
 
     public static boolean joinEvent(Request request, Response response, EvantStore es) {
         // Check that user email provided and eventName provided
+        JsonObject reqObj = new Gson().fromJson(request.body(), JsonObject.class);
+        System.out.println(reqObj.get("eventName"));
+        System.out.println(reqObj.get("orgName"));
         User u = request.session().attribute("logged in");
-        if (request.queryParams("eventName") == null  || request.queryParams("orgName") == null) {
+        if (reqObj.get("eventName") == null  || reqObj.get("orgName") == null) {
             Handler.UpdateResponse(response, 400, "Missing field");
             return false;
         }
@@ -143,7 +146,8 @@ public class Validate {
         }
         // Check if event exists
         // For now, we assume each event name is unique but in future should allow multiple orgs to have same event
-        else if (!es.checkEvent(request.queryParams("eventName"), request.queryParams("orgName"))) {
+        else if (!es.checkEvent(reqObj.get("eventName").toString(), reqObj.get("orgName").toString())) {
+            System.out.println("event does not exist");
             Handler.UpdateResponse(response, 400, "No such event exists");
             return false;
         }

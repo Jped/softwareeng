@@ -3,13 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Evant Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
-    <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- Script to load upcoming events -->
-    <script type=text/babel src="./js/upcoming_events.js">  </script>
 
 
 </head>
@@ -21,37 +17,11 @@
 
 
 
-    <!--
-    onload="getEvents_fromAPI()"
-    <div id="upcoming_events"> </div>
-    ReactDOM.render(
-        <h1>Hello, world!</h1>,
-        document.getElementById('root')
-    );
-
-    <h3> Dashboard </h3>
-    <div id="upcoming_events"> </div>
-    -->
-
-    <!--
-    <script>
-        function myEvents(){
-            httpRequest = new XMLHttpRequest();
-            httpRequest.open('GET', 'http://localhost:4567/myEvents');
-            httpRequest.withCredentials = true;
-            httpRequest.onreadystatechange=(e)=>{
-                console.log(httpRequest.status);
-            };
-        }
-    </script>
-    -->
-
-    <!-- This loads in the React library
     <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    Load our React component.
-    <script src="./js/upcoming_events.js"></script>
-    -->
+    <!-- Script to load upcoming events -->
+    <script type=text/babel src="./js/dashboard.js">  </script>
 </body>
 </html>

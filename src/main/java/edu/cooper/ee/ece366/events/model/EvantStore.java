@@ -23,5 +23,6 @@ public interface EvantStore {
     void joinEvent(Member m, Event e);
 
     List<Event> getMyEvents(String email);
-    ResultIterator<Event> getUpcomingEvents();
+    List<Event> getOrgEvents(String orgName);
+    List<Event> getUpcomingEvents();
 }

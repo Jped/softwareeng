@@ -33,7 +33,7 @@ public class Main {
         Spark.post("/createEvent", (req, res) -> handler.createEvent(req, res).orElse(null), jsonTransformer);
         Spark.post("/joinEvent", (req, res) -> handler.joinEvent(req, res), jsonTransformer);
         Spark.get("/myEvents", (req, res) -> handler.myEvents(req, res).orElse(null), jsonTransformer);
-        Spark.get("/upcomingEvents", (req, res) -> handler.upcomingEvents(req, res), jsonTransformer);
+        Spark.get("/upcomingEvents", (req, res) -> handler.upcomingEvents(req, res).orElse(null), jsonTransformer);
 
 
         Spark.options("/*", (req, res) -> {
