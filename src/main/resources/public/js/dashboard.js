@@ -84,14 +84,7 @@ class UserDashboard extends React.Component {
 class UserEvents extends React.Component {
     constructor(props){
         super(props);
-        /*this.state = {
-            listUsers: [""],
-            error:false,
-            userName:this.state.name
-        };*/
-        //this.getSignups() = this.getSignups.bind(this);
     };
-    //write leave event function
     leaveEvent(eventName, eventOrg) {
         apiCall("leaveEvent", "POST", {"eventName":eventName, "orgName":eventOrg}, this, function(status, response, currThis){
             if(status != 200){
@@ -114,12 +107,6 @@ class UserEvents extends React.Component {
     }
 
 
-    /*addToUsers(userObject){
-        const all_users = this.state.listUsers;
-        all_users.push(userObject);
-        this.setState({listUsers:all_users});
-    }*/
-
     render() {
         return (
             <div>
@@ -131,14 +118,12 @@ class UserEvents extends React.Component {
                         <th scope="col">Organization</th>
                         <th scope="col">Date</th>
                         <th scope="col">Message</th>
-                        <th scope="col">Leave Event</th>
+                        <th hidden={this.props.org} scope="col">Leave Event</th>
 
                     </tr>
                     </thead>
                     <tbody>
                     {this.props.listMyEvents.map( (e,i) => {
-                        //this.props.listUsers.map(u,i) =>
-                        //this.getSignups(e).map(u, i)=>
 
                         return (
                             <tr onClick={() => this.getEventPage(e)} key={i}>
@@ -146,7 +131,7 @@ class UserEvents extends React.Component {
                                 <td> {e.orgName} </td>
                                 <td> {e.date} </td>
                                 <td> {e.eventMessage} </td>
-                                <td>
+                                <td hidden={this.props.org}>
                                     <button type="button" className="btn btn-primary"
                                             onClick={() => this.leaveEvent(e.name, e.orgName)}>Leave Event
                                     </button>
@@ -211,12 +196,6 @@ class UpcomingEvents extends React.Component {
                 currEvents.splice(eventObjectIndex,1);
                 currThis.setState({listEvents:currEvents});
 
-                //var currUsers = currThis.state.listUsers;
-                //var userObjectIndex  = currEvents.findIndex(i => i.email == userEmail)
-                //currThis.props.addToUsers(currUsers[userObjectIndex]);
-                //currEvents.splice(userObjectIndex,1);
-                //currThis.setState({listEvents:currEvents, listUsers:currUsers});
-                //currThis.setState({listUsers:getCookie("sessid")});
             }
         });
     }
@@ -356,7 +335,7 @@ class OrgDashboard extends React.Component {
                 <div>
                     <Logout/>
 
-                    <UserEvents listMyEvents={this.props.listMyEvents} handleChange={this.handleChange}/>
+                    <UserEvents org={true} listMyEvents={this.props.listMyEvents} handleChange={this.handleChange}/>
 
                     <CreateEvent orgName={this.props.orgName} addToMyEvents={this.props.addToMyEvents}/>
                 </div>
@@ -394,28 +373,28 @@ class Events extends React.Component {
                 <p>Time: {this.props.eventDate}</p>
                 <p>Description: {this.props.eventMessage}</p>
 
-                <table className="table">
-                    <thead className="thead-dark">
-                    <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Birthday</th>
-                        <th scope="col">Gender</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {/*{this.state.listUsers.map( (u,i) => {*/}
-                    {/*    return (*/}
-                    {/*        <tr key={i}>*/}
-                    {/*            <td> {u.name} </td>*/}
-                    {/*            <td> {u.email} </td>*/}
-                    {/*            <td> {u.birthday} </td>*/}
-                    {/*            <td> {u.gender} </td>*/}
-                    {/*        </tr>*/}
-                    {/*    )*/}
-                    {/*})}*/}
-                    </tbody>
-                </table>
+                {/*<table className="table">*/}
+                {/*    <thead className="thead-dark">*/}
+                {/*    <tr>*/}
+                {/*        <th scope="col">Name</th>*/}
+                {/*        <th scope="col">Email</th>*/}
+                {/*        <th scope="col">Birthday</th>*/}
+                {/*        <th scope="col">Gender</th>*/}
+                {/*    </tr>*/}
+                {/*    </thead>*/}
+                {/*    <tbody>*/}
+                {/*    /!*{this.state.listUsers.map( (u,i) => {*!/*/}
+                {/*    /!*    return (*!/*/}
+                {/*    /!*        <tr key={i}>*!/*/}
+                {/*    /!*            <td> {u.name} </td>*!/*/}
+                {/*    /!*            <td> {u.email} </td>*!/*/}
+                {/*    /!*            <td> {u.birthday} </td>*!/*/}
+                {/*    /!*            <td> {u.gender} </td>*!/*/}
+                {/*    /!*        </tr>*!/*/}
+                {/*    /!*    )*!/*/}
+                {/*    /!*})}*!/*/}
+                {/*    </tbody>*/}
+                {/*</table>*/}
 
             </div>
 
