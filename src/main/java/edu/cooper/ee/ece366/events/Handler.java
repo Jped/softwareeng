@@ -153,7 +153,18 @@ public class Handler {
             return false;
         }
     }
-
+    public Boolean leaveEvent(Request request, Response response) {
+        //if (Validate.leaveEvent(request,response,es)) {
+            JsonObject reqObj = new Gson().fromJson(request.body(), JsonObject.class);
+            Member m = request.session().attribute("logged in");
+            service.leaveEvent(reqObj.get("eventName").getAsString(), reqObj.get("orgName").getAsString(), m);
+            UpdateResponse(response, 200, "Left event successfully");
+            return true;
+        //}
+        //else {
+            //return false;
+        //}
+    }
     public Optional<List<Event>> myEvents(Request request, Response response) {
         User u = request.session().attribute("logged in");
         // Ensure a user is logged in
@@ -176,6 +187,31 @@ public class Handler {
         List<Event> upcomingEvents = es.getUpcomingEvents();
         UpdateResponse(response, 200, upcomingEvents.toString());
         return Optional.of(upcomingEvents);
+    }
+
+    public Optional<List<User>> eventSignups(Request request, Response response) {
+        User u = request.session().attribute("logged in");
+        JsonObject reqObj = new Gson().fromJson(request.body(), JsonObject.class);
+        String eventName = reqObj.get("eventName").getAsString();
+        Event e = es.getEvent(eventName, u.getName());
+
+        // Ensure a user is logged in
+        if (u == null) {
+            UpdateResponse(response,404,"No user logged in");
+            return Optional.empty();
+        }
+
+        // User name must be the same as event organization
+        if (!(u instanceof Organization) || !(u.getName().equals(e.getOrgName()))){
+            UpdateResponse(response,401,"User is not authorized to get signup list");
+            return Optional.empty();
+        }
+
+        List<User> mySignups = es.getSignups(e);
+
+        UpdateResponse(response, 200, mySignups.toString());
+        return Optional.of(mySignups);
+
     }
 
     private Boolean getUserType(JsonObject reqObj) {

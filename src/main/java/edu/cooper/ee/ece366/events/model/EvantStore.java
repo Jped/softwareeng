@@ -21,8 +21,12 @@ public interface EvantStore {
     Event getEvent(String eventName, String orgName);
     Event createEvent(Event e);
     void joinEvent(Member m, Event e);
+    void leaveEvent(Member m, Event e);
 
     List<Event> getMyEvents(String email);
     List<Event> getOrgEvents(String orgName);
     List<Event> getUpcomingEvents();
+
+    List<User> getSignups(Event e);
+
 }

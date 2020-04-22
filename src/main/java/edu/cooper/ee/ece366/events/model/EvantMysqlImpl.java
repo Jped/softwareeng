@@ -145,6 +145,13 @@ public class EvantMysqlImpl implements EvantStore{
         return;
     }
 
+    public void leaveEvent(Member m, Event e){
+        jdbi.withHandle(
+                handle ->
+                        handle.execute("DELETE FROM signUps WHERE (userID, eventID)=(?, ?)", m.getID(), e.getID()));
+        return;
+    }
+
     public List<Event> getMyEvents(String email) {
         return jdbi.withHandle(
                 handle ->
@@ -167,4 +174,14 @@ public class EvantMysqlImpl implements EvantStore{
                                 .mapToBean(Event.class)
                                 .list());
     }
+
+    public List<User> getSignups(Event e) {
+        System.out.println(e.getID());
+         return jdbi.withHandle(
+                handle ->
+                        handle.select("SELECT userID FROM signUps WHERE eventID = ? ", e.getID())
+                                .mapToBean(User.class)
+                                .list());
+    }
+
 }

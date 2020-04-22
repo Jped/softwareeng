@@ -78,7 +78,7 @@ public class Validate {
             Handler.UpdateResponse(response, 409, "No new user was signed up because a user already exists with this email address.");
             return false;
         }
-        else {
+        else if (userType == false){
             // If user is of member type, additional checks:
             if (Pattern.matches("(?i)false|0", userType.toString())) {
                 // Validate gender - must be String true or false, case insensitive
@@ -91,8 +91,9 @@ public class Validate {
                 }
             }
             // If user is of org type:
-            return true;
+            //return true;
         }
+        return true;
     }
 
 

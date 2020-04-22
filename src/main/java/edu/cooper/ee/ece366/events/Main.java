@@ -32,8 +32,10 @@ public class Main {
         Spark.get("/logOut", (req, res) -> handler.logOut(req,res).orElse(null), jsonTransformer);
         Spark.post("/createEvent", (req, res) -> handler.createEvent(req, res).orElse(null), jsonTransformer);
         Spark.post("/joinEvent", (req, res) -> handler.joinEvent(req, res), jsonTransformer);
+        Spark.post("/leaveEvent", (req, res) -> handler.leaveEvent(req, res), jsonTransformer);
         Spark.get("/myEvents", (req, res) -> handler.myEvents(req, res).orElse(null), jsonTransformer);
         Spark.get("/upcomingEvents", (req, res) -> handler.upcomingEvents(req, res).orElse(null), jsonTransformer);
+        Spark.post("/eventSignups", (req, res) -> handler.eventSignups(req, res).orElse(null), jsonTransformer);
 
 
         Spark.options("/*", (req, res) -> {

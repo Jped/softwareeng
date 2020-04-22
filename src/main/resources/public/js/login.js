@@ -148,10 +148,6 @@ class Login extends React.Component {
 }
 
 
-
-
-
-
 ReactDOM.render(
   <Login />,
   document.getElementById("root")

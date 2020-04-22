@@ -44,6 +44,12 @@ public class Service {
         return;
     }
 
+    public void leaveEvent(String eventName, String orgName, Member m) {
+        Event e = es.getEvent(eventName, orgName);
+        es.leaveEvent(m, e);
+        return;
+    }
+
     public Boolean verifyPassword(User u, String password){
         return BCrypt.checkpw(password, u.getPassword());
     }

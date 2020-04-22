@@ -34,6 +34,11 @@ class GuestGreeting extends React.Component {
     }
 
     handleInputChange(e) {
+        if (this.state.isOrg) {
+            userType:this.state.type = true;
+            this.state.gender = true;
+            this.state.birthday = "1111-11-11";
+        }
         const target = e.target;
         var value = target.name === 'isOrg' ? target.checked : target.value;
         const name = target.name;
@@ -41,6 +46,7 @@ class GuestGreeting extends React.Component {
             [name]: value
         });
     }
+
 
     signUp(){
         var load = {
@@ -50,7 +56,7 @@ class GuestGreeting extends React.Component {
             userBirthday:this.state.birthday,
             userGender:this.state.gender,
             userPassword:this.state.password,
-            //userType:this.state.isOrg
+            userType:this.state.type
         };
 
         apiCall("signUp", "POST", load, this,function (status, body, error, currThis){
@@ -59,30 +65,35 @@ class GuestGreeting extends React.Component {
                if (error == "Email format incorrect"){
                   currThis.setState({emailError:true})
                }
+               else {
+                   currThis.setState({emailError:false})
+               }
                if (error == "Password not acceptable"){
                   currThis.setState({passwordError:true})
+               }
+               else {
+                   currThis.setState({passwordError:false})
                }
                if (error == "Username not acceptable"){
                    currThis.setState({nameError:true})
                }
+               else {
+                   currThis.setState({nameError:false})
+               }
                if (error == "userPhone not acceptable"){
                    currThis.setState({phoneError:true})
+               }
+               else {
+                   currThis.setState({phoneError:false})
                }
                if (status == 409){
                    currThis.setState({userError:true})
                }
             }
             else {
+                //currThis.setState({error: false});
                 window.location.href = "login.html";
             }
-                // currThis.props.onChange("user", JSON.parse(body).name);
-                // currThis.props.onChange("isSignedUp", true);
-                // currThis.setState({error: false});
-                // currThis.setState({emailError:false})
-                // currThis.setState({passwordError:false})
-                // currThis.setState({nameError:false})
-                // currThis.setState({phoneError:false})
-                // currThis.setState({userError:false})
         });
     }
 
@@ -124,7 +135,7 @@ class GuestGreeting extends React.Component {
             <p style={{color:"red"}} hidden={!this.state.phoneError}>invalid phone number</p>
             <br/>
             <label hidden={this.state.isOrg}> birthday </label>
-            <input hidden={this.state.isOrg}
+            <input value={this.state.birthday} hidden={this.state.isOrg}
                    id="userBirthday"
                    type="date"
                    name="birthday"
@@ -152,12 +163,12 @@ class GuestGreeting extends React.Component {
             <br/>
             <label> Are you an organization < /label>
                 <input
-                    id="orgType"
+                    id="userType"
                     type="checkbox"
                     name="isOrg"
                     value={this.state.isOrg}
-
                     onChange={this.handleInputChange}
+
                 />
                 <button disabled={(this.state.isOrg && !(this.state.name && this.state.email && this.state.phone && this.state.password))||(!this.state.isOrg && !(this.state.name && this.state.email && this.state.phone && this.state.birthday && this.state.gender && this.state.password))} onClick={() => this.signUp()}> signup </button>
         </div>
