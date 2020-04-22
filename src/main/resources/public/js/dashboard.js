@@ -43,6 +43,30 @@ function getEvents_fromAPI(curThis,callback){
         callback(jsonResponse,curThis);
     };
 }
+
+class Logout extends React.Component{
+    constructor(props) {
+        super(props);
+        this.logout = this.logout.bind(this)
+    }
+    logout(){
+        document.cookie = "sessid=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        apiCall("logOut", "GET", "", this, function(status, response, currThis){
+            window.location.href = "login.html";
+
+            //currThis.props.onChange("isLoggedIn", false);
+        });
+
+    }
+    render() {
+        return(
+            <td>
+                <button onClick={this.logout}>logout</button>
+            </td>
+        );
+    }
+}
+
 class UserDashboard extends React.Component {
     constructor(props) {
         super(props);
@@ -50,6 +74,7 @@ class UserDashboard extends React.Component {
     render(){
         return (
             <div>
+                <Logout/>
                 <UserEvents listMyEvents={this.props.listMyEvents} />
                 <UpcomingEvents listMyEvents={this.props.listMyEvents} addToMyEvents={this.props.addToMyEvents}/>
             </div>
@@ -59,35 +84,82 @@ class UserDashboard extends React.Component {
 class UserEvents extends React.Component {
     constructor(props){
         super(props);
+        /*this.state = {
+            listUsers: [""],
+            error:false,
+            userName:this.state.name
+        };*/
+        //this.getSignups() = this.getSignups.bind(this);
     };
+    //write leave event function
+    leaveEvent(eventName, eventOrg) {
+        apiCall("leaveEvent", "POST", {"eventName":eventName, "orgName":eventOrg}, this, function(status, response, currThis){
+            if(status != 200){
+            }else{
+                window.location.href = "dashboard.html";
+                var currEvents = currThis.state.listEvents;
+                var eventObjectIndex  = currEvents.findIndex(i => i.name == eventName && i.orgName == eventOrg)
+                currThis.props.removeFromMyEvents(currEvents[eventObjectIndex]);
+                currEvents.splice(eventObjectIndex,1);
+                currThis.setState({listEvents:currEvents});
+            }
+        });
+    }
+
+    getEventPage(event){
+        this.props.handleChange("eventSelect", true);
+        this.props.handleChange("eventName", event.name);
+        this.props.handleChange("eventDate", event.date);
+        this.props.handleChange("eventMessage", event.eventMessage);
+    }
+
+
+    /*addToUsers(userObject){
+        const all_users = this.state.listUsers;
+        all_users.push(userObject);
+        this.setState({listUsers:all_users});
+    }*/
+
     render() {
-       return (
-           <div>
-           <h2>My Events</h2>
-           <table className="table">
-               <thead className="thead-dark">
+        return (
+            <div>
+                <h2>My Events</h2>
+                <table className="table table-hover">
+                    <thead className="thead-dark">
                     <tr>
                         <th scope="col">Event Name</th>
                         <th scope="col">Organization</th>
                         <th scope="col">Date</th>
                         <th scope="col">Message</th>
+                        <th scope="col">Leave Event</th>
+
                     </tr>
-               </thead>
-               <tbody>
-                {this.props.listMyEvents.map( (e,i) => {
-                    return (
-                        <tr key={i}>
-                            <td> {e.name} </td>
-                            <td> {e.orgName} </td>
-                            <td> {e.date} </td>
-                            <td> {e.eventMessage} </td>
-                        </tr>
-                    )
-                })}
-               </tbody>
-            </table>
-        </div>
-       );
+                    </thead>
+                    <tbody>
+                    {this.props.listMyEvents.map( (e,i) => {
+                        //this.props.listUsers.map(u,i) =>
+                        //this.getSignups(e).map(u, i)=>
+
+                        return (
+                            <tr onClick={() => this.getEventPage(e)} key={i}>
+                                <td> {e.name} </td>
+                                <td> {e.orgName} </td>
+                                <td> {e.date} </td>
+                                <td> {e.eventMessage} </td>
+                                <td>
+                                    <button type="button" className="btn btn-primary"
+                                            onClick={() => this.leaveEvent(e.name, e.orgName)}>Leave Event
+                                    </button>
+                                </td>
+
+
+                            </tr>
+                        )
+                    })}
+                    </tbody>
+                </table>
+            </div>
+        );
     }
 }
 class UpcomingEvents extends React.Component {
@@ -131,16 +203,24 @@ class UpcomingEvents extends React.Component {
     }
     joinEvent(eventName, eventOrg) {
         apiCall("joinEvent", "POST", {"eventName":eventName, "orgName":eventOrg}, this, function(status, response, currThis){
-           if(status != 200){
-           }else{
+            if(status != 200){
+            }else{
                 var currEvents = currThis.state.listEvents;
                 var eventObjectIndex  = currEvents.findIndex(i => i.name == eventName && i.orgName == eventOrg)
-               currThis.props.addToMyEvents(currEvents[eventObjectIndex]);
-               currEvents.splice(eventObjectIndex,1);
-               currThis.setState({listEvents:currEvents});
-           }
+                currThis.props.addToMyEvents(currEvents[eventObjectIndex]);
+                currEvents.splice(eventObjectIndex,1);
+                currThis.setState({listEvents:currEvents});
+
+                //var currUsers = currThis.state.listUsers;
+                //var userObjectIndex  = currEvents.findIndex(i => i.email == userEmail)
+                //currThis.props.addToUsers(currUsers[userObjectIndex]);
+                //currEvents.splice(userObjectIndex,1);
+                //currThis.setState({listEvents:currEvents, listUsers:currUsers});
+                //currThis.setState({listUsers:getCookie("sessid")});
+            }
         });
     }
+
     render() {
         return (
             <div>
@@ -208,10 +288,10 @@ class CreateEvent extends React.Component{
         apiCall("createEvent", "POST", load, this,function (status, body, currThis){
             if(status == 200){
                 currThis.props.addToMyEvents({
-                        name:load.eventName,
-                        date:eventDate,
-                        eventMessage:load.eventMessage,
-                        orgName:currThis.props.orgName
+                    name:load.eventName,
+                    date:eventDate,
+                    eventMessage:load.eventMessage,
+                    orgName:currThis.props.orgName
                 });
                 currThis.setState({eventName:"", eventMessage:"", eventDate:""});
             }else{
@@ -220,50 +300,127 @@ class CreateEvent extends React.Component{
         });
     }
     render() {
-            return (
-                <div>
-                    <h3>Create a new event:</h3>
-                    <h4 style={{color:"red"}} hidden={!this.state.error}> ERROR: {this.state.errorMessage}</h4>
-                    <label>Event Name</label>
-                    <input
-                        id="eventName"
-                        type="text"
-                        name="eventName"
-                        value={this.state.eventName}
-                        onChange={this.handleInputChange}/> <br/>
-                    <label>Event Message</label>
-                    <textarea
-                        id="eventMessage"
-                        rows="4"
-                        cols="25"
-                        name="eventMessage"
-                        value={this.state.eventMessage}
-                        onChange={this.handleInputChange}/> <br/>
-                    <label>Event Date </label>
-                    <input
-                        id="eventDate"
-                        type="datetime-local"
-                        name="eventDate"
-                        value={this.state.eventDate}
-                        onChange={this.handleInputChange}/> <br/>
-                    <button disabled={!(this.state.eventName && this.state.eventDate)}
-                            onClick={this.createEvent}> Create Event
-                    </button>
-                </div>
-            );
-        }
+        return (
+            <div>
+                <h3>Create a new event:</h3>
+                <h4 style={{color:"red"}} hidden={!this.state.error}> ERROR: {this.state.errorMessage}</h4>
+                <label>Event Name</label>
+                <input
+                    id="eventName"
+                    type="text"
+                    name="eventName"
+                    value={this.state.eventName}
+                    onChange={this.handleInputChange}/> <br/>
+                <label>Event Message</label>
+                <textarea
+                    id="eventMessage"
+                    rows="4"
+                    cols="25"
+                    name="eventMessage"
+                    value={this.state.eventMessage}
+                    onChange={this.handleInputChange}/> <br/>
+                <label>Event Date </label>
+                <input
+                    id="eventDate"
+                    type="datetime-local"
+                    name="eventDate"
+                    value={this.state.eventDate}
+                    onChange={this.handleInputChange}/> <br/>
+                <button disabled={!(this.state.eventName && this.state.eventDate)}
+                        onClick={this.createEvent}> Create Event
+                </button>
+            </div>
+        );
+    }
 }
 
 class OrgDashboard extends React.Component {
     constructor(props) {
         super(props);
+        this.state={
+            eventSelect:false,
+            eventName:"",
+            eventDate:"",
+            eventMessage:""
+        };
+        this.handleChange = this.handleChange.bind(this);
+    }
+
+    handleChange(key, value){
+        this.setState({[key]:value});
     }
     render () {
-        return (
+
+        if(!this.state.eventSelect){
+            return (
                 <div>
-                    <UserEvents listMyEvents={this.props.listMyEvents}/>
+                    <Logout/>
+
+                    <UserEvents listMyEvents={this.props.listMyEvents} handleChange={this.handleChange}/>
+
                     <CreateEvent orgName={this.props.orgName} addToMyEvents={this.props.addToMyEvents}/>
                 </div>
+            )}
+        return (
+            <div>
+                <Events eventName = {this.state.eventName} eventDate = {this.state.eventDate} eventMessage = {this.state.eventMessage}/>
+            </div>
+        )
+    }
+}
+
+class Events extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state ={
+            userList:[""]
+        }
+    }
+
+    componentDidMount(){
+
+        apiCall("eventSignups", "POST", {eventName:this.props.eventName}, this, function (status, body, currThis) {
+            console.log(body);
+            if (status == 200) {
+            }
+        });
+
+    }
+
+    render(){
+        return(
+            <div>
+                <h3>Event: {this.props.eventName} </h3>
+                <p>Time: {this.props.eventDate}</p>
+                <p>Description: {this.props.eventMessage}</p>
+
+                <table className="table">
+                    <thead className="thead-dark">
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Birthday</th>
+                        <th scope="col">Gender</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {/*{this.state.listUsers.map( (u,i) => {*/}
+                    {/*    return (*/}
+                    {/*        <tr key={i}>*/}
+                    {/*            <td> {u.name} </td>*/}
+                    {/*            <td> {u.email} </td>*/}
+                    {/*            <td> {u.birthday} </td>*/}
+                    {/*            <td> {u.gender} </td>*/}
+                    {/*        </tr>*/}
+                    {/*    )*/}
+                    {/*})}*/}
+                    </tbody>
+                </table>
+
+            </div>
+
+
+
         )
     }
 }
@@ -298,7 +455,15 @@ class Dashboard extends React.Component {
         all_events.push(eventObject);
         this.setState({listMyEvents:all_events});
     }
+
+    removeFromMyEvents(eventObject){
+        const all_events = this.state.listMyEvents;
+        all_events.pop(eventObject);
+        this.setState({listMyEvents:all_events});
+    }
+
     render() {
+
         if (this.state.org){
             return <OrgDashboard listMyEvents={this.state.listMyEvents} orgName={this.state.orgName} addToMyEvents={this.addToMyEvents}/>;
         }
