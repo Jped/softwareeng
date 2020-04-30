@@ -244,6 +244,7 @@ class CreateEvent extends React.Component{
             error:false,
             errorMessage:""
         };
+        this.createEvent = this.createEvent.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
     }
     handleInputChange(e) {
@@ -253,7 +254,6 @@ class CreateEvent extends React.Component{
         this.setState({
             [name]: value
         });
-        this.createEvent = this.createEvent.bind(this);
     }
     createEvent(){
         console.log("creating event ", this.state.eventDate, this.state.eventMessage, this.state.eventName);
