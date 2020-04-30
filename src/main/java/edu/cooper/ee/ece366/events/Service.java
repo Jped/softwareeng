@@ -3,6 +3,7 @@ package edu.cooper.ee.ece366.events;
 import edu.cooper.ee.ece366.events.model.*;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,9 +14,8 @@ public class Service {
         this.es = es;
     };
 
-    public User createUser(Boolean userType, String userName, String userPassword, String userPhone, String userEmail, LocalDateTime userBirthday, Boolean userGender) {
+    public User createUser(Boolean userType, String userName, String userPassword, String userPhone, String userEmail, LocalDate userBirthday, Boolean userGender) {
         User user;
-        System.out.println("user type " + userType);
         Boolean isOrg = userType;
         if (isOrg) {
             Organization new_org = new Organization(userName, BCrypt.hashpw(userPassword, BCrypt.gensalt()), userPhone, userEmail);
@@ -41,6 +41,12 @@ public class Service {
     public void joinEvent(String eventName, String orgName, Member m) {
         Event e = es.getEvent(eventName, orgName);
         es.joinEvent(m, e);
+        return;
+    }
+
+    public void leaveEvent(String eventName, String orgName, Member m) {
+        Event e = es.getEvent(eventName, orgName);
+        es.leaveEvent(m, e);
         return;
     }
 

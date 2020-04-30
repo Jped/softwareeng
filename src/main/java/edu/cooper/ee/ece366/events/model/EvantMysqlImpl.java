@@ -3,14 +3,10 @@ package edu.cooper.ee.ece366.events.model;
 import org.jdbi.v3.core.Jdbi;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.jdbi.v3.core.result.ResultIterable;
 import org.jdbi.v3.core.result.ResultIterator;
-import org.jdbi.v3.core.statement.Query;
 
 public class EvantMysqlImpl implements EvantStore{
 
@@ -73,7 +69,6 @@ public class EvantMysqlImpl implements EvantStore{
     }
 
     public Organization getOrg(String orgEmail){
-        System.out.println(orgEmail);
         Optional<Organization> org = jdbi.withHandle(
                 handle ->
                         handle.select("select id, name, password, phone, email from orgs where email = ?", orgEmail)
@@ -109,10 +104,9 @@ public class EvantMysqlImpl implements EvantStore{
     public Boolean checkEvent(String eventName, String orgName){
         Optional<Integer> eventID = jdbi.withHandle(
                 handle ->
-                        handle.select("select id from events where name =? and orgName =?", eventName, orgName)
+                        handle.select("select id from events where name=? and orgName=?", eventName.substring(1,eventName.length()-1), orgName.substring(1,orgName.length()-1))
                                 .mapTo(Integer.class)
                                 .findOne());
-        //System.out.println(eventName + " " + orgName);
         if (eventID.isEmpty()) {
             return false;
         }
@@ -151,19 +145,43 @@ public class EvantMysqlImpl implements EvantStore{
         return;
     }
 
-    public ResultIterator<Event> getMyEvents(String email) {
+    public void leaveEvent(Member m, Event e){
+        jdbi.withHandle(
+                handle ->
+                        handle.execute("DELETE FROM signUps WHERE (userID, eventID)=(?, ?)", m.getID(), e.getID()));
+        return;
+    }
+
+    public List<Event> getMyEvents(String email) {
         return jdbi.withHandle(
                 handle ->
                         handle.select("SELECT events.name, events.orgName, events.id, events.date, events.eventMessage FROM members join signUps ON members.id = signUps.userID join events ON signUps.eventID = events.id WHERE members.email = ?", email)
                         .mapToBean(Event.class)
-                        .iterator());
+                        .list());
+    }
+    public List<Event> getOrgEvents(String orgName) {
+        return jdbi.withHandle(
+                handle ->
+                        handle.select("SELECT events.name, events.orgName, events.id, events.date, events.eventMessage FROM events where orgName=?", orgName)
+                                .mapToBean(Event.class)
+                                .list());
     }
 
-    public ResultIterator<Event> getUpcomingEvents() {
+    public List<Event> getUpcomingEvents() {
         return jdbi.withHandle(
                 handle ->
                         handle.select("SELECT * FROM events WHERE date >= ?", LocalDateTime.now())
                                 .mapToBean(Event.class)
-                                .iterator());
+                                .list());
     }
+
+    public List<User> getSignups(Event e) {
+        System.out.println(e.getID());
+         return jdbi.withHandle(
+                handle ->
+                        handle.select("SELECT userID FROM signUps WHERE eventID = ? ", e.getID())
+                                .mapToBean(User.class)
+                                .list());
+    }
+
 }

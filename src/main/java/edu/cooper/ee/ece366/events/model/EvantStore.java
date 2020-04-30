@@ -2,8 +2,7 @@ package edu.cooper.ee.ece366.events.model;
 
 import org.jdbi.v3.core.result.ResultIterator;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.List;
 
 public interface EvantStore {
 
@@ -22,7 +21,12 @@ public interface EvantStore {
     Event getEvent(String eventName, String orgName);
     Event createEvent(Event e);
     void joinEvent(Member m, Event e);
+    void leaveEvent(Member m, Event e);
 
-    ResultIterator<Event> getMyEvents(String email);
-    ResultIterator<Event> getUpcomingEvents();
+    List<Event> getMyEvents(String email);
+    List<Event> getOrgEvents(String orgName);
+    List<Event> getUpcomingEvents();
+
+    List<User> getSignups(Event e);
+
 }

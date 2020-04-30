@@ -50,19 +50,7 @@ class Logout extends React.Component{
     }
 }
 
-class UserGreeting extends React.Component {
-   constructor(props) {
-       super(props);
-   }
-   render() {
-       return (
-           <div>
-                <h1>Hi {this.props.name}! You are signed in. {this.props.isOrgAccount}</h1>
-                <Logout onChange={this.props.onChange}/>
-           </div>
-       );
-   }
-}
+
 
 class GuestGreeting extends React.Component{
     constructor(props) {
@@ -96,14 +84,7 @@ class GuestGreeting extends React.Component{
             if (status != 200){
                 currThis.setState({error: true});
             }else {
-                var bodyObj = JSON.parse(body);
-                currThis.props.onChange("user", bodyObj.name);
-                if (bodyObj.hasOwnProperty("gender")){
-                    currThis.props.onChange("isOrgAccount", false);
-                }else{
-                    currThis.props.onChange("isOrgAccount", true);
-                }
-                currThis.props.onChange("isLoggedIn", true);
+                window.location.href = "dashboard.html";
             }
         });
     }
@@ -161,12 +142,7 @@ class Login extends React.Component {
         checkIfLoggedIn(this, function(currThis, resp, userBody){
             currThis.setState({isLoggedIn:resp});
             if (resp){
-                currThis.setState({user:userBody.name})
-                if (userBody.hasOwnProperty("gender")){
-                    currThis.setState({isOrgAccount:false});
-                }else {
-                    currThis.setState({isOrgAccount:true});
-                }
+                window.location.href = "dashboard.html";
             }
         });
     }
@@ -174,25 +150,14 @@ class Login extends React.Component {
         this.setState({[key]:value});
     }
     render() {
-        if (this.state.isOrgAccount){
-            return <div>
-                        <UserGreeting name={this.state.user} onChange={this.handleChange}/>
-                        <a href="./createEvents.html" hidden={this.props.isOrgAccount}>Create a New Event</a>
-                    </div>;
-        }else if(this.state.isLoggedIn) {
-            return <UserGreeting name={this.state.user} onChange={this.handleChange}/>;
-        }
         return <GuestGreeting onChange={this.handleChange}/>;
     }
 }
-
-
-
-
 
 
 ReactDOM.render(
   <Login />,
   document.getElementById("root")
 );
+
 

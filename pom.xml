@@ -7,9 +7,10 @@
   <artifactId>eventApp</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
+  <packaging>jar</packaging>
   <properties>
-    <maven.compiler.source>1.11</maven.compiler.source>
-    <maven.compiler.target>1.11</maven.compiler.target>
+    <maven.compiler.source>8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
@@ -53,6 +54,35 @@
     </dependency>
   </dependencies>
 
-
+  <build>
+    <plugins>
+      <plugin>
+        <!-- Build an executable JAR -->
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <outputDirectory>.</outputDirectory>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>lib/</classpathPrefix>
+              <mainClass>edu.cooper.ee.ece366.events.Main</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

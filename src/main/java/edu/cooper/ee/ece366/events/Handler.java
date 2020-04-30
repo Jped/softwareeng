@@ -3,22 +3,14 @@ package edu.cooper.ee.ece366.events;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import edu.cooper.ee.ece366.events.model.*;
-import edu.cooper.ee.ece366.events.Service;
-
-import java.security.PublicKey;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.regex.Pattern;
-
+import java.util.*;
+import edu.cooper.ee.ece366.events.Service;
+import java.security.PublicKey;
+import java.time.LocalDate;
 import edu.cooper.ee.ece366.events.util.Validate;
-import netscape.javascript.JSObject;
-import org.eclipse.jetty.http.HttpParser;
 import org.jdbi.v3.core.result.ResultIterator;
 import spark.Request;
 import spark.Response;
@@ -41,14 +33,17 @@ public class Handler {
 
     public static void UpdateResponse(Response response, Integer code, String message) {
         response.status(code);
-        response.body(message);
-        System.out.println(message);
+        if (code != 200){
+            response.header("error", message);
+        }
+        else{
+            response.body(message);
+        }
     }
 
     public Optional<User> signUp(Request request, Response response) {
         if (Validate.signUp(request,response, es)) {  //Passed in userSet only because of in memory configuration. This should be changed when db integrated.
             JsonObject reqObj = new Gson().fromJson(request.body(), JsonObject.class);
-            System.out.print(reqObj);
             User  u = service.createUser(
                     getUserType(reqObj),
                     makeString(reqObj.get("userName")),
@@ -134,7 +129,7 @@ public class Handler {
             event = service.createEvent(
                     reqObj.get("eventName").getAsString(),
                     u.getName(),
-                    getDate(reqObj.get("eventDate").getAsString()),
+                    getDateTime(reqObj.get("eventDate").getAsString()),
                     reqObj.get("eventMessage").getAsString());
 
             UpdateResponse(response,200,String.valueOf(event));
@@ -158,18 +153,65 @@ public class Handler {
             return false;
         }
     }
-
-    public ResultIterator<Event> myEvents(Request request, Response response) {
+    public Boolean leaveEvent(Request request, Response response) {
+        //if (Validate.leaveEvent(request,response,es)) {
+            JsonObject reqObj = new Gson().fromJson(request.body(), JsonObject.class);
+            Member m = request.session().attribute("logged in");
+            service.leaveEvent(reqObj.get("eventName").getAsString(), reqObj.get("orgName").getAsString(), m);
+            UpdateResponse(response, 200, "Left event successfully");
+            return true;
+        //}
+        //else {
+            //return false;
+        //}
+    }
+    public Optional<List<Event>> myEvents(Request request, Response response) {
         User u = request.session().attribute("logged in");
-        ResultIterator<Event> myEvents = es.getMyEvents(u.getEmail());
-        UpdateResponse(response, 200, String.valueOf(myEvents));
-        return myEvents;
+        // Ensure a user is logged in
+        if (u == null) {
+            UpdateResponse(response,404,"No user logged in");
+            return Optional.empty();
+        }
+        // Differentiate between org and member
+        List<Event> myEvents;
+        if(u instanceof Member) {
+            myEvents = es.getMyEvents(u.getEmail());
+        }else{
+            myEvents = es.getOrgEvents(u.getName());
+        }
+        UpdateResponse(response, 200, myEvents.toString());
+        return Optional.of(myEvents);
     }
 
-    public ResultIterator<Event> upcomingEvents(Request request, Response response) {
-        ResultIterator<Event> upcomingEvents = es.getUpcomingEvents();
-        UpdateResponse(response, 200, String.valueOf(upcomingEvents));
-        return upcomingEvents;
+    public Optional<List<Event>> upcomingEvents(Request request, Response response) {
+        List<Event> upcomingEvents = es.getUpcomingEvents();
+        UpdateResponse(response, 200, upcomingEvents.toString());
+        return Optional.of(upcomingEvents);
+    }
+
+    public Optional<List<User>> eventSignups(Request request, Response response) {
+        User u = request.session().attribute("logged in");
+        JsonObject reqObj = new Gson().fromJson(request.body(), JsonObject.class);
+        String eventName = reqObj.get("eventName").getAsString();
+        Event e = es.getEvent(eventName, u.getName());
+
+        // Ensure a user is logged in
+        if (u == null) {
+            UpdateResponse(response,404,"No user logged in");
+            return Optional.empty();
+        }
+
+        // User name must be the same as event organization
+        if (!(u instanceof Organization) || !(u.getName().equals(e.getOrgName()))){
+            UpdateResponse(response,401,"User is not authorized to get signup list");
+            return Optional.empty();
+        }
+
+        List<User> mySignups = es.getSignups(e);
+
+        UpdateResponse(response, 200, mySignups.toString());
+        return Optional.of(mySignups);
+
     }
 
     private Boolean getUserType(JsonObject reqObj) {
@@ -183,7 +225,16 @@ public class Handler {
         return Boolean.valueOf(makeString(reqObj.get("userGender")));
     }
 
-    private LocalDateTime getDate(String date) {
+    private LocalDate getDate(String date) {
+        // TODO: verify that the date is in kosher format provided by the user
+        if(date != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            return LocalDate.parse(date, formatter);
+        }
+        return LocalDate.now();
+    }
+
+    private LocalDateTime getDateTime(String date) {
         // TODO: verify that the date is in kosher format provided by the user
         if(date != null) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
