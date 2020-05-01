@@ -91,8 +91,6 @@ class GuestGreeting extends React.Component{
     render() {
         return (
             <div className="wrap-login100">
-                <div className="login100-more" style={{backgroundDomage:"url('img/member.jpg')"}}>
-                </div>
                 <div className="login100-form validate-form">
 					<span className="login100-form-title p-b-43">
 						Login to continue
