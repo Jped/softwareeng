@@ -92,6 +92,7 @@ class GuestGreeting extends React.Component{
         return (
             <div className="wrap-login100">
                 <div className="login100-form validate-form">
+                    <img src="../img/calendar.png" id="img"/>
 					<span className="login100-form-title p-b-43">
 						Login to continue
 					</span>
@@ -99,14 +100,14 @@ class GuestGreeting extends React.Component{
                     <div className="wrap-input100">
                         <input className="input100" id="userEmail" value={this.state.email} onChange={this.handleInputChange} type="text" name="email" />
                         <span className="focus-input100"></span>
-                        <span className="label-input100">Email</span>
+                        <span hidden={this.state.email!=""} className="label-input100">Email</span>
                     </div>
 
 
                     <div className="wrap-input100 validate-input">
                         <input className="input100" type="password" name="password" id="userPassword" value={this.state.password} onChange={this.handleInputChange} />
                             <span className="focus-input100"></span>
-                            <span className="label-input100">Password</span>
+                            <span hidden={this.state.password!=""} className="label-input100">Password</span>
                     </div>
                     <label> Are you an organization < /label>
                         <input

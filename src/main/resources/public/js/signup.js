@@ -102,6 +102,7 @@ class GuestGreeting extends React.Component {
         return (
             <div className="wrap-login100">
                 <div className="login100-form validate-form">
+                    <img src="../img/calendar.png" id="img"/>
                     <span className="login100-form-title p-b-43">
                         Sign Up
                     </span>
@@ -117,7 +118,7 @@ class GuestGreeting extends React.Component {
                     className="input100"
                     />
                     <span className="focus-input100"></span>
-                    <span className="label-input100">Name</span>
+                    <span hidden={this.state.name != ""} className="label-input100">Name</span>
                 </div>
                 <p style={{color:"red"}} hidden={!this.state.nameError}>invalid user name</p>
                 <div className="wrap-input100">
@@ -130,7 +131,7 @@ class GuestGreeting extends React.Component {
                     className="input100"
                     />
                     <span className="focus-input100"></span>
-                    <span className="label-input100">Email</span>
+                    <span hidden={this.state.email != ""} className="label-input100">Email</span>
                 </div>
                 <p style={{color:"red"}} hidden={!this.state.emailError}>invalid email</p>
                 <div className="wrap-input100">
@@ -143,7 +144,7 @@ class GuestGreeting extends React.Component {
                     className="input100"
                     />
                     <span className="focus-input100"></span>
-                    <span className="label-input100">Phone</span>
+                    <span hidden={this.state.phone != ""} className="label-input100">Phone</span>
                 </div>
                 <p style={{color:"red"}} hidden={!this.state.phoneError}>invalid phone number</p>
                 <div className="wrap-input100">
@@ -156,15 +157,18 @@ class GuestGreeting extends React.Component {
                         className="input100"
                     />
                     <span className="focus-input100"></span>
-                    <span className="label-input100">Birthday</span>
+                    <span hidden={this.state.birthday != "" } className="label-input100">Birthday</span>
                 </div>
                 <br hidden={this.state.isOrg}/>
-                <label>Gender</label>
-                <select value={this.state.gender} id="userGender" name="gender" hidden={this.state.isOrg} onChange={this.handleInputChange}>
-                    <option value="true">Male</option>
-                    <option value="false">Female</option>
-                    <option value="true">Other</option>
-                </select>
+                <div className="wrap-input100" hidden={this.state.isOrg}>
+                    <label>Gender</label>
+                    <select  className="input100" value={this.state.gender} id="userGender" name="gender" hidden={this.state.isOrg} onChange={this.handleInputChange}>
+                        <option value="true">Male</option>
+                        <option value="false">Female</option>
+                        <option value="true">Other</option>
+                    </select>
+                    <span className="focus-input100"></span>
+                </div>
                 <div className="wrap-input100">
                         <input
                         id="userPassword"
@@ -175,11 +179,11 @@ class GuestGreeting extends React.Component {
                         className="input100"
                         />
                         <span className="focus-input100"></span>
-                        <span className="label-input100">Password</span>
+                        <span hidden={this.state.password != ""} className="label-input100">Password</span>
                 </div>
                 <p style={{color:"red"}} hidden={!this.state.passwordError}>password must have at least 6 characters</p>
                 <br/>
-                    <label> Are you an organization < /label>
+                <label> Are you an organization? &nbsp;
                     <input
                     id="userType"
                     type="checkbox"
@@ -187,6 +191,7 @@ class GuestGreeting extends React.Component {
                     value={this.state.isOrg}
                     onChange={this.handleInputChange}
                     />
+                </label>
                 <div className="container-login100-form-btn">
                     <button
                             disabled={(this.state.isOrg && !(this.state.name && this.state.email && this.state.phone && this.state.password))||(!this.state.isOrg && !(this.state.name && this.state.email && this.state.phone && this.state.birthday && this.state.gender && this.state.password))}
