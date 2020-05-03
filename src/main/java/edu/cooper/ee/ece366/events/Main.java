@@ -1,15 +1,8 @@
 package edu.cooper.ee.ece366.events;
-import edu.cooper.ee.ece366.events.model.Organization;
-import spark.Filter;
-import edu.cooper.ee.ece366.events.model.EvantStore;
 import edu.cooper.ee.ece366.events.model.EvantMysqlImpl;
 import org.jdbi.v3.core.Jdbi;
 import spark.Spark;
 import edu.cooper.ee.ece366.events.util.JsonTransformer;
-import spark.ModelAndView;
-import java.time.LocalDateTime;
-import java.util.*;
-import edu.cooper.ee.ece366.events.model.User;
 
 public class Main {
 
