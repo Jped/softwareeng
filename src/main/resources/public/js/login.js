@@ -116,6 +116,11 @@ class GuestGreeting extends React.Component{
                         onChange={this.handleInputChange} /><br/>
 
                     <button disabled={!(this.state.password && this.state.email)} onClick={this.logIn}> login </button>
+                    <br></br>
+                    <label>Not signed up? </label>
+                    <br></br>
+                    <button onClick={() => window.location.href = "signup.html"}> Sign up here </button>
+
             </div>
     )
     }

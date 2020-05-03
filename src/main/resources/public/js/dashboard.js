@@ -359,8 +359,14 @@ class Events extends React.Component {
     componentDidMount(){
 
         apiCall("eventSignups", "POST", {eventName:this.props.eventName}, this, function (status, body, currThis) {
-            console.log(body);
+
             if (status == 200) {
+                console.log(body[0]);
+                console.log(body[1]);
+                currThis.setState({userList:body});
+
+                console.log(currThis.state.userList[0].gender);
+
             }
         });
 
@@ -369,32 +375,30 @@ class Events extends React.Component {
     render(){
         return(
             <div>
+                <button onClick={()=>window.location.href = "dashboard.html"}>back</button>
+
                 <h3>Event: {this.props.eventName} </h3>
                 <p>Time: {this.props.eventDate}</p>
                 <p>Description: {this.props.eventMessage}</p>
 
-                {/*<table className="table">*/}
-                {/*    <thead className="thead-dark">*/}
-                {/*    <tr>*/}
-                {/*        <th scope="col">Name</th>*/}
-                {/*        <th scope="col">Email</th>*/}
-                {/*        <th scope="col">Birthday</th>*/}
-                {/*        <th scope="col">Gender</th>*/}
-                {/*    </tr>*/}
-                {/*    </thead>*/}
-                {/*    <tbody>*/}
-                {/*    /!*{this.state.listUsers.map( (u,i) => {*!/*/}
-                {/*    /!*    return (*!/*/}
-                {/*    /!*        <tr key={i}>*!/*/}
-                {/*    /!*            <td> {u.name} </td>*!/*/}
-                {/*    /!*            <td> {u.email} </td>*!/*/}
-                {/*    /!*            <td> {u.birthday} </td>*!/*/}
-                {/*    /!*            <td> {u.gender} </td>*!/*/}
-                {/*    /!*        </tr>*!/*/}
-                {/*    /!*    )*!/*/}
-                {/*    /!*})}*!/*/}
-                {/*    </tbody>*/}
-                {/*</table>*/}
+                <table className="table">
+                    <thead className="thead-dark">
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {this.state.userList.map( (u,i) => {
+                        return (
+                             <tr key={i}>
+                                <td> {u.name} </td>
+                                <td> {u.email} </td>
+                             </tr>
+                        )
+                    })}
+                    </tbody>
+                </table>
 
             </div>
 
