@@ -198,6 +198,7 @@ class GuestGreeting extends React.Component {
                             onClick={() => this.signUp()}
                             className="login100-form-btn"> Signup </button>
                 </div>
+                   <button onClick={() => window.location.href = "login.html"}> Log in here </button>
                 </div>
             </div>
         )

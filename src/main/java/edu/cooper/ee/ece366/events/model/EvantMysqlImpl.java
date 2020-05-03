@@ -3,6 +3,7 @@ package edu.cooper.ee.ece366.events.model;
 import org.jdbi.v3.core.Jdbi;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -176,12 +177,30 @@ public class EvantMysqlImpl implements EvantStore{
     }
 
     public List<User> getSignups(Event e) {
-        System.out.println(e.getID());
-         return jdbi.withHandle(
+        //System.out.println("event id: " + e.getID());
+         List<Integer> ids = jdbi.withHandle(
                 handle ->
                         handle.select("SELECT userID FROM signUps WHERE eventID = ? ", e.getID())
-                                .mapToBean(User.class)
+                                .mapTo(Integer.class)
                                 .list());
+
+        List<User> users = new ArrayList<User>();
+//         for (int j = 0; j < ids.size(); j ++) {
+//             System.out.println(ids.get(j));
+//         }
+        for (int i = 0; i < ids.size(); i++){
+            int finalI = i;
+            Member member = jdbi.withHandle(
+                     handle ->
+                             handle.select("select id, name, phone, email, birthday, gender from members where id = ?", ids.get(finalI))
+                                     .mapToBean(Member.class)
+                                     .one());
+             users.add(i, member);
+
+         }
+
+        return users;
+
     }
 
 }
