@@ -58,7 +58,7 @@ public class Validate {
             return false;
         }
         // Validate userName
-        else if (!Pattern.matches("[A-Za-z0-9_\\.]+", userName)) {
+        else if (!Pattern.matches("[A-Za-z0-9_ \\.]+", userName)) {
             Handler.UpdateResponse(response, 400, "Username not acceptable");
             return false;
         }
