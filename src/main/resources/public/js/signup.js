@@ -21,7 +21,7 @@ class GuestGreeting extends React.Component {
             password: "",
             phone: "",
             birthday: "",
-            gender: "male",
+            gender: "true",
             isOrg: false,
             nameError:false,
             emailError:false,
@@ -100,83 +100,106 @@ class GuestGreeting extends React.Component {
 
     render(){
         return (
-            <div>
-            <h3>Sign Up</h3>
-            <p style={{color:"red"}} hidden={!this.state.error}>Error with signing up please try again</p>
-            <p style={{color:"red"}} hidden={!this.state.userError}>A user with this email already exists</p>
-            <label> name </label>
-            <input
-                id="userName"
-                type="text"
-                name="name"
-                value={this.state.name}
-                onChange={this.handleInputChange}
-            />
-            <p style={{color:"red"}} hidden={!this.state.nameError}>invalid user name</p>
-            <br/>
-            <label> email </label>
-            <input
-                id="userEmail"
-                type="text"
-                name="email"
-                value={this.state.email}
-                onChange={this.handleInputChange}
-            />
-            <p style={{color:"red"}} hidden={!this.state.emailError}>invalid email</p>
-            <br/>
-            <label> phone </label>
-            <input
-                id="userPhone"
-                type="text"
-                name="phone"
-                value={this.state.phone}
-                onChange={this.handleInputChange}
-            />
-            <p style={{color:"red"}} hidden={!this.state.phoneError}>invalid phone number</p>
-            <br/>
-            <label hidden={this.state.isOrg}> birthday </label>
-            <input value={this.state.birthday} hidden={this.state.isOrg}
-                   id="userBirthday"
-                   type="date"
-                   name="birthday"
-                   value={this.state.birthday}
-                   onChange={this.handleInputChange}
-            />
-            <br hidden={this.state.isOrg}/>
-            <label hidden={this.state.isOrg}> gender </label>
-            <select value={this.state.gender} id="userGender" name="gender" hidden={this.state.isOrg} onChange={this.handleInputChange}>
-                    <option value="true">Male</option>
-                    <option value="false">Female</option>
-                    <option value="true">Other</option>
-
-            </select>
-            <br hidden={this.state.isOrg}/>
-            <label> password </label>
-            <input
-                id="userPassword"
-                type="password"
-                name="password"
-                value={this.state.password}
-                onChange={this.handleInputChange}
-            />
-            <p style={{color:"red"}} hidden={!this.state.passwordError}>password must have at least 6 characters</p>
-            <br/>
-            <label> Are you an organization < /label>
-                <input
+            <div className="wrap-login100">
+                <div className="login100-form validate-form">
+                    <img src="../img/calendar.png" id="img"/>
+                    <span className="login100-form-title p-b-43">
+                        Sign Up
+                    </span>
+                <p style={{color:"red"}} hidden={!this.state.error}>Error with signing up please try again</p>
+                <p style={{color:"red"}} hidden={!this.state.userError}>A user with this email already exists</p>
+                <div className="wrap-input100">
+                    <input
+                    id="userName"
+                    type="text"
+                    name="name"
+                    value={this.state.name}
+                    onChange={this.handleInputChange}
+                    className="input100"
+                    />
+                    <span className="focus-input100"></span>
+                    <span hidden={this.state.name != ""} className="label-input100">Name</span>
+                </div>
+                <p style={{color:"red"}} hidden={!this.state.nameError}>invalid user name</p>
+                <div className="wrap-input100">
+                    <input
+                    id="userEmail"
+                    type="text"
+                    name="email"
+                    value={this.state.email}
+                    onChange={this.handleInputChange}
+                    className="input100"
+                    />
+                    <span className="focus-input100"></span>
+                    <span hidden={this.state.email != ""} className="label-input100">Email</span>
+                </div>
+                <p style={{color:"red"}} hidden={!this.state.emailError}>invalid email</p>
+                <div className="wrap-input100">
+                    <input
+                    id="userPhone"
+                    type="text"
+                    name="phone"
+                    value={this.state.phone}
+                    onChange={this.handleInputChange}
+                    className="input100"
+                    />
+                    <span className="focus-input100"></span>
+                    <span hidden={this.state.phone != ""} className="label-input100">Phone</span>
+                </div>
+                <p style={{color:"red"}} hidden={!this.state.phoneError}>invalid phone number</p>
+                <div className="wrap-input100">
+                    <input value={this.state.birthday} hidden={this.state.isOrg}
+                        id="userBirthday"
+                        type="date"
+                        name="birthday"
+                        value={this.state.birthday}
+                        onChange={this.handleInputChange}
+                        className="input100"
+                    />
+                    <span className="focus-input100"></span>
+                    <span hidden={this.state.birthday != "" } className="label-input100">Birthday</span>
+                </div>
+                <br hidden={this.state.isOrg}/>
+                <div className="wrap-input100" hidden={this.state.isOrg}>
+                    <label>Gender</label>
+                    <select  className="input100" value={this.state.gender} id="userGender" name="gender" hidden={this.state.isOrg} onChange={this.handleInputChange}>
+                        <option value="true">Male</option>
+                        <option value="false">Female</option>
+                        <option value="true">Other</option>
+                    </select>
+                    <span className="focus-input100"></span>
+                </div>
+                <div className="wrap-input100">
+                        <input
+                        id="userPassword"
+                        type="password"
+                        name="password"
+                        value={this.state.password}
+                        onChange={this.handleInputChange}
+                        className="input100"
+                        />
+                        <span className="focus-input100"></span>
+                        <span hidden={this.state.password != ""} className="label-input100">Password</span>
+                </div>
+                <p style={{color:"red"}} hidden={!this.state.passwordError}>password must have at least 6 characters</p>
+                <br/>
+                <label> Are you an organization? &nbsp;
+                    <input
                     id="userType"
                     type="checkbox"
                     name="isOrg"
                     value={this.state.isOrg}
                     onChange={this.handleInputChange}
-
-                />
-
-                <button disabled={(this.state.isOrg && !(this.state.name && this.state.email && this.state.phone && this.state.password))||(!this.state.isOrg && !(this.state.name && this.state.email && this.state.phone && this.state.birthday && this.state.gender && this.state.password))} onClick={() => this.signUp()}> signup </button>
-                <br></br>
-                <label>Already have an account?</label>
-                <br></br>
-                <button onClick={() => window.location.href = "login.html"}> Log in here </button>
-
+                    />
+                </label>
+                <div className="container-login100-form-btn">
+                    <button
+                            disabled={(this.state.isOrg && !(this.state.name && this.state.email && this.state.phone && this.state.password))||(!this.state.isOrg && !(this.state.name && this.state.email && this.state.phone && this.state.birthday && this.state.gender && this.state.password))}
+                            onClick={() => this.signUp()}
+                            className="login100-form-btn"> Signup </button>
+                </div>
+                   <button onClick={() => window.location.href = "login.html"}> Log in here </button>
+                </div>
             </div>
         )
     }
