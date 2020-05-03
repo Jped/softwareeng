@@ -121,9 +121,13 @@ class GuestGreeting extends React.Component{
                             Login
                         </button>
                     </div>
-                     <label>Not signed up? </label>
-                    <br></br>
-                    <button onClick={() => window.location.href = "signup.html"}> Sign up here </button>
+                    <div className="container-login100-form-btn">
+                        <label>Not signed up? </label>
+                        <br></br>
+                        <button onClick={() => window.location.href = "signup.html"} className="login100-form-btn"> Sign up here </button>
+                    </div>
+
+
 
                 </div>
             </div>
