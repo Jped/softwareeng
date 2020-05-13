@@ -4,3 +4,13 @@ After you have all the dependencies built, you can run the main file and start p
 
 To test out all capabilities you can run the demo.sh you can also look in it to see all the capabilities of the api at this point.
  
+# Evant Website
+ECE366 Software Engineering, Spring 2020
+
+The Cooper Union, New York, NY
+
+The purpose of this project was to build an event platform website. Organizations can create new events and manage participants 
+in each event, while members can join events and view their upcoming events.
+
+To run the project, first run: mvn clean install. 
+Then you can either compile the project directly or run the jar file, using the command java -jar eventApp-0.0.1-SNAPSHOT-jar-with-dependencies.jar
