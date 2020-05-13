@@ -60,9 +60,20 @@ class Logout extends React.Component{
     }
     render() {
         return(
-            <td>
-                <button onClick={this.logout}>logout</button>
-            </td>
+            <nav className="navbar navbar-expand-lg navbar-light bg-light">
+                <a className="navbar-brand">Evant Dashboard</a>
+                <button className="navbar-toggler" type="button" data-toggle="collapse"
+                        data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span className="navbar-toggler-icon"></span>
+                </button>
+                    <div className="container-login100-form-btn">
+                        <td>
+                            <button onClick={this.logout} className="login100-form-btn" >Logout</button>
+                        </td>
+                    </div>
+            </nav>
+
         );
     }
 }
@@ -110,6 +121,7 @@ class UserEvents extends React.Component {
     render() {
         return (
             <div>
+                <hr />
                 <h2>My Events</h2>
                 <table className="table table-hover">
                     <thead className="thead-dark">
@@ -203,6 +215,7 @@ class UpcomingEvents extends React.Component {
     render() {
         return (
             <div>
+                <hr />
                 <h2>Upcoming Public Events</h2>
                 <table className="table">
                     <thead className="thead-dark">
@@ -281,37 +294,63 @@ class CreateEvent extends React.Component{
     render() {
         return (
             <div>
-                <h3>Create a new event:</h3>
+                <hr />
+                <div>
+                    <span className="login100-form-title p-b-43">
+                        Create a new event:
+                    </span>
                 <h4 style={{color:"red"}} hidden={!this.state.error}> ERROR: {this.state.errorMessage}</h4>
-                <label>Event Name</label>
-                <input
-                    id="eventName"
-                    type="text"
-                    name="eventName"
-                    value={this.state.eventName}
-                    onChange={this.handleInputChange}/> <br/>
-                <label>Event Message</label>
-                <textarea
-                    id="eventMessage"
-                    rows="4"
-                    cols="25"
-                    name="eventMessage"
-                    value={this.state.eventMessage}
-                    onChange={this.handleInputChange}/> <br/>
-                <label>Event Date </label>
-                <input
-                    id="eventDate"
-                    type="datetime-local"
-                    name="eventDate"
-                    value={this.state.eventDate}
-                    onChange={this.handleInputChange}/> <br/>
-                <button disabled={!(this.state.eventName && this.state.eventDate)}
-                        onClick={this.createEvent}> Create Event
-                </button>
+
+                <div className="wrap-input100">
+                    <input
+                        id="eventName"
+                        type="text"
+                        name="eventName"
+                        value={this.state.eventName}
+                        onChange={this.handleInputChange}
+                        className="input100"
+                    />
+                    <span className="focus-input100"></span>
+                    <span hidden={this.state.eventName != ""} className="label-input100">Event Name</span>
+                </div>
+
+                <div className="wrap-input100">
+                    <input
+                        id="eventMessage"
+                        rows="4"
+                        cols="25"
+                        name="eventMessage"
+                        value={this.state.eventMessage}
+                        onChange={this.handleInputChange}
+                        className="input100"
+                    />
+                    <span className="focus-input100"></span>
+                    <span hidden={this.state.eventMessage != ""} className="label-input100">Event Message</span>
+                </div>
+
+                <div className="wrap-input100">
+                    <input value={this.state.eventDate}
+                           id="eventDate"
+                           type="datetime-local"
+                           name="eventDate"
+                           value={this.state.eventDate}
+                           onChange={this.handleInputChange}
+                           className="input100"
+                    />
+                    <span className="focus-input100"></span>
+                    <span hidden={this.state.eventDate != "" } className="label-input100">Event Date</span>
+                </div>
+
+                <div className="container-login100-form-btn">
+                    <button className="login100-form-btn" disabled={!(this.state.eventName && this.state.eventDate)}
+                            onClick={this.createEvent}> Create Event</button>
+                </div>
+            </div>
             </div>
         );
     }
 }
+
 
 class OrgDashboard extends React.Component {
     constructor(props) {
@@ -419,6 +458,7 @@ class Dashboard extends React.Component {
     }
     componentDidMount(){
         checkIfLoggedIn(this, function (currThis, status, respObj) {
+            console.log(respObj);
             if(!status) {
                 window.location.href = "login.html";
             }else if (respObj.hasOwnProperty('gender')){
