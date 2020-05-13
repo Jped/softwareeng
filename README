@@ -1,9 +1,3 @@
-Hi,
-To run this project you need to first run: mvn clean install
-After you have all the dependencies built, you can run the main file and start playing with the api
-
-To test out all capabilities you can run the demo.sh you can also look in it to see all the capabilities of the api at this point.
- 
 # Evant Website
 ECE366 Software Engineering, Spring 2020
 
